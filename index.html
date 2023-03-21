@@ -18,7 +18,7 @@
 
     <div>
         <h2>Motivation</h2>
-        We chose to create this project because we think it is important to recognize how our innovations have affected crop output. Our visualization seeks to offer the user insights on the relationship between growth factors and crop output by allowing them to choose a factor and compare its usage levels to the output. 
+        We chose to create this project because we think it is important to recognize how our innovations have affected crop output. Our visualization seeks to offer the user insights on the relationship between growth factors and crop output by allowing them to choose a factor and compare its usage levels to the output. It is important to implement our idea because it would be useful for agricultural researchers to have an interactive graph to gain insights on growth factors' impact on crop output. 
     </div>
 
     <div>
@@ -32,20 +32,33 @@
         It is important to be aware of these biases and limitations when interpreting agricultural productivity data and to use it in conjunction with other sources of information to gain a comprehensive understanding of the subject. 
     </div>
 
-    <div id="map">
+    <div>
+        
         <h2>Visualization</h2>
         TODO: Build your visualization tool here  
+        <div id="map">
+            <div class="slidecontainer">
+             <input type="range" min="1" max="100" value="50" class="slider" id="select_year">
+            </div>
+        </div>
     </div>
 
     <div>
         <h2>Acknowledgements</h2>
-        TODO: Cite resources used here   
+        <a href="url">https://plotly.com/python/reference/layout/geo/#layout-geo-lataxis</a>
+        <a href="url"></a> 
+        <a href="url"></a> 
+        <a href="url"></a> 
+        <a href="url"></a> 
     </div>
 
 
     <script src="js/main.js" type="module"></script>
-    <script src="http://d3js.org/topojson.v1.min.js"></script>
-    <script src="https://d3js.org/d3-queue.v3.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.18.2.min.js"></script>
+    <script src="js/d3-geomap.js"></script>
+    <script src="//unpkg.com/d3@5/dist/d3.min.js"></script>
+    <script src="//unpkg.com/topojson@3/dist/topojson.min.js"></script>
+    <script src="js/d3-geomap.min.js"></script>
 
 
 </body>
