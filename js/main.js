@@ -25,51 +25,53 @@
 // .projection(usProjection);
 
 
+// let svg = d3.select(DOM.g)
+//Define the dimensions of the SVG element that will contain the map
 
-// Define the dimensions of the SVG element that will contain the map
-const width = 960;
-const height = 600;
 
-// Create the SVG element and append it to the DOM
-const svg = d3.select('#map')
-  .append('svg')
-  .attr('width', width)
-  .attr('height', height);
+//Create the SVG element and append it to the DOM
 
-// Load the CSV file
+
+//Load the CSV file
 d3.csv('data_clean/labour_input.csv').then(function(data) {
-  // Extract the data for all states from the 5th row of the CSV file
-  let stateData = data[4];
+            const width = 960;
+            const height = 600;
+            const svg = d3.select('#map')
+            .append('svg')
+            .attr('width', width)
+            .attr('height', height);
+            // Extract the data for all states from the 5th row of the CSV file
+            let stateData = data[4];
             console.log(data)
 
 
-  // Define the color scale for the data
-  const colorScale = d3.scaleSequential()
-    .domain(d3.extent(Object.values(stateData).slice(1),
-            function(d) { return +d; }))
-    .interpolator(d3.interpolateYlOrRd);
+            // Define the color scale for the data
+            const colorScale = d3.scaleSequential()
+                        .domain(d3.extent(Object.values(stateData).slice(1),
+                                function(d) { return +d; }))
+                        .interpolator(d3.interpolateYlOrRd);
 
-  // Define the projection for the map
-  const projection = d3.geoAlbersUsa()
-    .scale(1200)
-    .translate([width / 2, height / 2]);
+            // Define the projection for the map
+            const projection = d3.geoAlbersUsa()
+                        .scale(1200)
+                        .translate([width / 2, height / 2]);
 
-  // Create a path generator for the map
-  const path = d3.geoPath()
-    .projection(projection);
+            // Create a path generator for the map
+            const path = d3.geoPath()
+                      .projection(projection);
 
-  // Load the geojson data for the states
-  d3.json('https://d3js.org/us-10m.v1.json').then(function(us) {
-    // Create a feature for each state and color it based on the data
-    svg.selectAll('path')
-      .data(topojson.feature(us, us.objects.states).features)
-      .enter()
-      .append('path')
-      .attr('d', path)
-      .style('fill', function(d) {
-        return colorScale(+stateData[d.properties.postal]);
-      });
-  });
+            // Load the geojson data for the states
+            d3.json('https://d3js.org/us-10m.v1.json').then(function(us) {
+                        // Create a feature for each state and color it based on the data
+                        svg.selectAll('path')
+                                    .data(topojson.feature(us, us.objects.states).features)
+                                    .enter()
+                                    .append('path')
+                                    .attr('d', path)
+                                    .style('fill', function(d) {
+                                            return colorScale(+stateData[d.properties.postal]);
+                                    });
+            });
 });
 
 
@@ -89,7 +91,7 @@ var line = d3.line()
     .y(function(d) { return y(d.Value); });
 
 // append the svg object to the body of the page
-var svg = d3.select("body").append("svg")
+var svg_line = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
@@ -112,12 +114,12 @@ d3.csv("data_clean/energy_input.csv", function(error, data) {
   y.domain([0, d3.max(data, function(d) { return d.Value; })]);
 
   // add the X axis
-  svg.append("g")
+  svg_line.append("g")
       .attr("transform", "translate(0," + height + ")")
       .call(d3.axisBottom(x));
 
   // add the Y axis
-  svg.append("g")
+  svg_line.append("g")
       .call(d3.axisLeft(y));
 
   // create a group for each state and draw the line
@@ -127,7 +129,7 @@ d3.csv("data_clean/energy_input.csv", function(error, data) {
       return {Year: d.Year, Value: d[state]};
     });
 
-    svg.append("path")
+    svg_line.append("path")
         .datum(stateData)
         .attr("class", "line")
         .attr("d", line)
@@ -136,48 +138,48 @@ d3.csv("data_clean/energy_input.csv", function(error, data) {
 });
 
 
-// d3.csv('data_clean/pesticide_consumption.csv', function(err, rows){
-//       function unpack(rows, key) {
-//           rows = Array.from(rows);
-//           return rows.map(function(row) { return row[key]; });
-//       }
+d3.csv('data_clean/pesticide_consumption.csv', function(err, rows){
+      function unpack(rows, key) {
+          rows = Array.from(rows);
+          return rows.map(function(row) { return row[key]; });
+      }
 
-//       var data = [{
-//           type: 'choropleth',
-//           locationmode: 'USA-states',
-//           locations: unpack(rows, 'code'),
-//           z: unpack(rows, 'Year'),
-//           text: unpack(rows, 'state'),
-//           zmin: 0,
-//           zmax: 17000,
-//           colorscale: [
-//               [0, 'rgb(242,240,247)'], [0.2, 'rgb(218,218,235)'],
-//               [0.4, 'rgb(188,189,220)'], [0.6, 'rgb(158,154,200)'],
-//               [0.8, 'rgb(117,107,177)'], [1, 'rgb(84,39,143)']
-//           ],
-//           colorbar: {
-//               title: 'x',
-//               thickness: 0.2
-//           },
-//           marker: {
-//               line:{
-//                   color: 'rgb(255,255,255)',
-//                   width: 2
-//               }
-//           }
-//       }];
+      var data = [{
+          type: 'choropleth',
+          locationmode: 'USA-states',
+          locations: unpack(rows, 'code'),
+          z: unpack(rows, 'Year'),
+          text: unpack(rows, 'state'),
+          zmin: 0,
+          zmax: 17000,
+          colorscale: [
+              [0, 'rgb(242,240,247)'], [0.2, 'rgb(218,218,235)'],
+              [0.4, 'rgb(188,189,220)'], [0.6, 'rgb(158,154,200)'],
+              [0.8, 'rgb(117,107,177)'], [1, 'rgb(84,39,143)']
+          ],
+          colorbar: {
+              title: 'x',
+              thickness: 0.2
+          },
+          marker: {
+              line:{
+                  color: 'rgb(255,255,255)',
+                  width: 2
+              }
+          }
+      }];
 
-//       console.log(unpack(rows, 'Year'));
+      console.log(unpack(rows, 'Year'));
 
 
-//       var layout = {
-//           title: 'Pesticide consumption',
-//           geo:{
-//               scope: 'usa',
-//               showlakes: true,
-//               lakecolor: 'rgb(255,255,255)'
-//           }
-//       };
+      var layout = {
+          title: 'Pesticide consumption',
+          geo:{
+              scope: 'usa',
+              showlakes: true,
+              lakecolor: 'rgb(255,255,255)'
+          }
+      };
 
-//       Plotly.newPlot("map", data, layout, {showLink: false});
-// });
+      Plotly.newPlot("map", data, layout, {showLink: false});
+});
