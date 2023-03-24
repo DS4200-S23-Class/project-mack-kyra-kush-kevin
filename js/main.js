@@ -1,185 +1,194 @@
-// let US_WIDTH = 700;
-// let US_HEIGHT = 500;
-// function make_usa() {
-//   states = d3.json("js/states_data.json");
-  
+const FRAME_HEIGHT = 700;
+const FRAME_WIDTH = 700;
+const MARGINS = {left: 30, right: 30, top: 30, bottom: 30};
+const VIS_HEIGHT = FRAME_HEIGHT - MARGINS.top - MARGINS.bottom;
+const VIS_WIDTH = FRAME_WIDTH - MARGINS.left - MARGINS.right;
 
-//   let svg = d3.select("map")
-//   .append("svg")
-//   .attr("width", US_WIDTH)
-//   .attr("height", US_HEIGHT);
-
-//   let g = svg.append("g");
-
-//   return svg.node();
-
-// }
-
-// let usProjection = d3.geoAlbers()
-// .scale(62500)
-// .rotate([39.82, 0])
-// .center([0, 98.58])
-// .translate([US_WIDTH/2, US_HEIGHT/2]);
-
-// let usa_geopath = d3.geoPath()
-// .projection(usProjection);
-
-
-// let svg = d3.select(DOM.g)
-//Define the dimensions of the SVG element that will contain the map
-
-
-//Create the SVG element and append it to the DOM
-
-
-//Load the CSV file
-d3.csv('data_clean/labour_input.csv').then(function(data) {
-            const width = 960;
-            const height = 600;
-            const svg = d3.select('#map')
-            .append('svg')
-            .attr('width', width)
-            .attr('height', height);
-            // Extract the data for all states from the 5th row of the CSV file
-            let stateData = data[4];
-            console.log(data)
-
-
-            // Define the color scale for the data
-            const colorScale = d3.scaleSequential()
-                        .domain(d3.extent(Object.values(stateData).slice(1),
-                                function(d) { return +d; }))
-                        .interpolator(d3.interpolateYlOrRd);
-
-            // Define the projection for the map
-            const projection = d3.geoAlbersUsa()
-                        .scale(1200)
-                        .translate([width / 2, height / 2]);
-
-            // Create a path generator for the map
-            const path = d3.geoPath()
-                      .projection(projection);
-
-            // Load the geojson data for the states
-            d3.json('https://d3js.org/us-10m.v1.json').then(function(us) {
-                        // Create a feature for each state and color it based on the data
-                        svg.selectAll('path')
-                                    .data(topojson.feature(us, us.objects.states).features)
-                                    .enter()
-                                    .append('path')
-                                    .attr('d', path)
-                                    .style('fill', function(d) {
-                                            return colorScale(+stateData[d.properties.postal]);
-                                    });
-            });
-});
-
-
-
-// set the dimensions and margins of the graph
-var margin = {top: 20, right: 20, bottom: 30, left: 50},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
-
-// set the ranges
-var x = d3.scaleLinear().range([0, width]);
-var y = d3.scaleLinear().range([height, 0]);
-
-// define the line
-var line = d3.line()
-    .x(function(d) { return x(d.Year); })
-    .y(function(d) { return y(d.Value); });
-
-// append the svg object to the body of the page
-var svg_line = d3.select("body").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
+let line_svg = d3.select("#map")
+  .append("svg")
+    .attr("width", FRAME_WIDTH + MARGINS.left + MARGINS.right)
+    .attr("height", FRAME_HEIGHT + MARGINS.top + MARGINS.bottom)
   .append("g")
     .attr("transform",
-          "translate(" + margin.left + "," + margin.top + ")");
+          "translate(" + MARGINS.left + "," + MARGINS.top + ")");
 
-// load the data
-d3.csv("data_clean/energy_input.csv", function(error, data) {
-  console.log(data);
-  if (error) throw error;
 
-  // format the data
-  data.forEach(function(d) {
-    d.Year = +d.Year;
-    d.Value = +d.Value;
-  });
+// mouse handlers for circles
+function handleMouseover(event, d) { 
+    event.target.style.fill = "orange";
+}; 
 
-  // set the domain of the axes
-  x.domain(d3.extent(data, function(d) { return d.Year; }));
-  y.domain([0, d3.max(data, function(d) { return d.Value; })]);
+function handleMouseleave(event, d) { 
+    event.target.style.fill = "darkred";   
+}; 
 
-  // add the X axis
-  svg_line.append("g")
-      .attr("transform", "translate(0," + height + ")")
+function handleClick(event, d) { 
+    if (event.target.style.stroke === "lightblue") { 
+        event.target.style.stroke = "";}   
+    else { 
+        event.target.style.stroke = "lightblue"; 
+        event.target.style.strokeWidth = "3px"; 
+        } 
+    }; 
+
+build_labor_input();
+
+
+function newGraphSubmission(){
+  const type = document.getElementById("selector").value;
+  if (type == 'Labor Output') {
+    build_labor_input();
+  } else if (type == 'Pesticide') {
+    build_pesticide();
+  } else if (type == 'Fertilizer') {
+    build_fertilizer();
+  }
+}
+
+
+
+
+
+
+
+function build_labor_input(){
+  let prev_point = [0, 0];
+
+  d3.csv("data_clean/labour_input.csv").then((data) => {
+
+    function time (d){
+    return { date : d3.timeParse("%Y-%m-%d")(d.year), value : d.value }
+    }
+
+    //time(data);
+
+    function fitter (data) {
+
+    //Add X axis --> it is a date format
+    let x = d3.scaleLinear()
+      .domain([d3.min(data, function(d) { return d.Year; })
+        , d3.max(data, function(d) { return d.Year; })])
+      .range([ 0, FRAME_WIDTH ]);
+    line_svg.append("g")
+      .attr("transform", "translate(0," + FRAME_HEIGHT + ")")
       .call(d3.axisBottom(x));
 
-  // add the Y axis
-  svg_line.append("g")
+    // Add Y axis
+    let y = d3.scaleLinear()
+      .domain([0, d3.max(data, function(d) { return +d.AL; })])
+      .range([ FRAME_HEIGHT, 0 ]);
+    line_svg.append("g")
       .call(d3.axisLeft(y));
+    // Add the line
 
-  // create a group for each state and draw the line
-  var states = data.columns.slice(1);
-  states.forEach(function(state) {
-    var stateData = data.map(function(d) {
-      return {Year: d.Year, Value: d[state]};
-    });
+    line_svg.append("line")
+      .datum(data)
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-width", 1.5)
+      .attr('x1', x(prev_point[0]))
+      .attr('y1', y(prev_point[1]))
+      .attr('x2', x(data.Year))
+      .attr('y2', y(data.AL));
+    prev_point = [function(d) { return x(d.Year) }, 
+      function(d) { return x(d.AL) }];
+    console.log(prev_point);
 
-    svg_line.append("path")
-        .datum(stateData)
-        .attr("class", "line")
-        .attr("d", line)
-        .style("stroke", function(d) { return d[0].Value > d[d.length - 1].Value ? "red" : "steelblue"; });
-  });
-});
+}
+      fitter(data);
+    })
+  }
+function build_pesticide(){
+  let prev_point = [0, 0];
 
+  d3.csv("data_clean/pesticide_consumption.csv").then((data) => {
 
-d3.csv('data_clean/pesticide_consumption.csv', function(err, rows){
-      function unpack(rows, key) {
-          rows = Array.from(rows);
-          return rows.map(function(row) { return row[key]; });
-      }
+    function time (d){
+    return { date : d3.timeParse("%Y-%m-%d")(d.year), value : d.value }
+    }
 
-      var data = [{
-          type: 'choropleth',
-          locationmode: 'USA-states',
-          locations: unpack(rows, 'code'),
-          z: unpack(rows, 'Year'),
-          text: unpack(rows, 'state'),
-          zmin: 0,
-          zmax: 17000,
-          colorscale: [
-              [0, 'rgb(242,240,247)'], [0.2, 'rgb(218,218,235)'],
-              [0.4, 'rgb(188,189,220)'], [0.6, 'rgb(158,154,200)'],
-              [0.8, 'rgb(117,107,177)'], [1, 'rgb(84,39,143)']
-          ],
-          colorbar: {
-              title: 'x',
-              thickness: 0.2
-          },
-          marker: {
-              line:{
-                  color: 'rgb(255,255,255)',
-                  width: 2
-              }
-          }
-      }];
+    //time(data);
 
-      console.log(unpack(rows, 'Year'));
+    function fitter (data) {
 
+    //Add X axis --> it is a date format
+    let x = d3.scaleLinear()
+      .domain([d3.min(data, function(d) { return d.Year; })
+        , d3.max(data, function(d) { return d.Year; })])
+      .range([ 0, FRAME_WIDTH ]);
+    line_svg.append("g")
+      .attr("transform", "translate(0," + FRAME_HEIGHT + ")")
+      .call(d3.axisBottom(x));
 
-      var layout = {
-          title: 'Pesticide consumption',
-          geo:{
-              scope: 'usa',
-              showlakes: true,
-              lakecolor: 'rgb(255,255,255)'
-          }
-      };
+    // Add Y axis
+    let y = d3.scaleLinear()
+      .domain([0, d3.max(data, function(d) { return +d.AL; })])
+      .range([ FRAME_HEIGHT, 0 ]);
+    line_svg.append("g")
+      .call(d3.axisLeft(y));
+    // Add the line
 
-      Plotly.newPlot("map", data, layout, {showLink: false});
-});
+    line_svg.append("line")
+      .datum(data)
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-width", 1.5)
+      .attr('x1', x(prev_point[0]))
+      .attr('y1', y(prev_point[1]))
+      .attr('x2', x(data.Year))
+      .attr('y2', y(data.AL));
+    prev_point = [function(d) { return x(d.Year) }, 
+      function(d) { return x(d.AL) }];
+    console.log(prev_point);
+
+}
+      fitter(data);
+    })
+  }
+function build_fertilizer(){
+  let prev_point = [0, 0];
+
+  d3.csv("data_clean/fertilizer_consumption.csv").then((data) => {
+
+    function time (d){
+    return { date : d3.timeParse("%Y-%m-%d")(d.year), value : d.value }
+    }
+
+    //time(data);
+
+    function fitter (data) {
+
+    //Add X axis --> it is a date format
+    let x = d3.scaleLinear()
+      .domain([d3.min(data, function(d) { return d.Year; })
+        , d3.max(data, function(d) { return d.Year; })])
+      .range([ 0, FRAME_WIDTH ]);
+    line_svg.append("g")
+      .attr("transform", "translate(0," + FRAME_HEIGHT + ")")
+      .call(d3.axisBottom(x));
+
+    // Add Y axis
+    let y = d3.scaleLinear()
+      .domain([0, d3.max(data, function(d) { return +d.AL; })])
+      .range([ FRAME_HEIGHT, 0 ]);
+    line_svg.append("g")
+      .call(d3.axisLeft(y));
+    // Add the line
+
+    line_svg.append("line")
+      .datum(data)
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-width", 1.5)
+      .attr('x1', x(prev_point[0]))
+      .attr('y1', y(prev_point[1]))
+      .attr('x2', x(data.Year))
+      .attr('y2', y(data.AL));
+    prev_point = [function(d) { return x(d.Year) }, 
+      function(d) { return x(d.AL) }];
+    console.log(prev_point);
+
+}
+      fitter(data);
+    })
+  }
