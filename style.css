@@ -6,6 +6,12 @@ h1 {
     text-align: center;
 }
 
-#map{
-    height: 800px;
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
 }

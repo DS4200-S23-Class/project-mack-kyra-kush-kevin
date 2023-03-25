@@ -37,23 +37,19 @@
         <h2>Visualization</h2>
         <input type="range" min="1" max="100" value="50" class="slider" id="select_year">
         TODO: Build your visualization tool here  
-        <div id="map">
-            <label id="selector">Growth Factor
-                <select>
-                    <option>Pesticide</option>
-                    <option>Labor Output</option>
-                    <option>Energy Input</option>
-                    <option>Fertilizer</option>
-                </select>
-            </label>
-            <button type="button" id="new-graph-button" onclick="newGraphSubmission()">
-            Enter
-            </button>
-
-            <div class="slidecontainer">
-             
+        <div id="graphs" class="flex-row">
+            <div class="flex-column">
+                <div id="pest">
+                </div>
+                <div id="fert">
+                </div>
             </div>
-        </div>
+            <div class="flex-column">
+                <div id="labor">
+                </div>
+                <div id="energy">
+                </div>
+            </div>
     </div>
 
     <div>
@@ -66,13 +62,7 @@
     </div>
 
 
-    <script src="js/main.js" type="module"></script>
-    <script src="https://cdn.plot.ly/plotly-2.18.2.min.js"></script>
-    <script src="js/d3-geomap.js"></script>
-    <script src="//unpkg.com/d3@5/dist/d3.min.js"></script>
-    <script src="//unpkg.com/topojson@3/dist/topojson.min.js"></script>
-    <script src="js/d3-geomap.min.js"></script>
-    <script src="https://gist.github.com/mbostock/4090848.js"></script>
+    <script src="js/main.js"></script>
 
 </body>
 
