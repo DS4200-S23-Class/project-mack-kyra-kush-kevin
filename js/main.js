@@ -28,6 +28,7 @@ let energy_svg = d3.select("#energy")
     .attr("transform",
           "translate(" + MARGINS.left + "," + MARGINS.top + ")");
 let labor_svg = d3.select("#energy")
+ 
   .append("svg")
     .attr("width", FRAME_WIDTH + MARGINS.left + MARGINS.right)
     .attr("height", FRAME_HEIGHT + MARGINS.top + MARGINS.bottom)
@@ -96,6 +97,14 @@ files=["data_clean/labour_input.csv", "data_clean/pesticide_consumption.csv",
       .attr('y1', y(prev_point[1]))
       .attr('x2', x(data.Year))
       .attr('y2', y(data.AL));
+
+
+    pest_svg.append("text")
+    .attr("x", FRAME_WIDTH/2)
+    .attr("y", 0 - MARGINS.top/2)
+    .attr("text-anchor", "middle") 
+    .text("Pesticide Consumption Per Year");
+
     prev_point = [function(d) { return x(d.Year) }, 
       function(d) { return x(d.AL) }];
     console.log(prev_point);
@@ -137,6 +146,12 @@ files=["data_clean/labour_input.csv", "data_clean/pesticide_consumption.csv",
       .attr('y1', y(prev_point[1]))
       .attr('x2', x(data.Year))
       .attr('y2', y(data.AL));
+
+    fert_svg.append("text")
+      .attr("x", FRAME_WIDTH/2)
+      .attr("y", 0 - MARGINS.top/2)
+      .attr("text-anchor", "middle") 
+      .text("Fertilizer Consumption Per Year");
     prev_point = [function(d) { return x(d.Year) }, 
       function(d) { return x(d.AL) }];
     console.log(prev_point);
@@ -179,8 +194,16 @@ files=["data_clean/labour_input.csv", "data_clean/pesticide_consumption.csv",
       .attr('y1', y(prev_point[1]))
       .attr('x2', x(data.Year))
       .attr('y2', y(data.AL));
-    prev_point = [function(d) { return x(d.Year) }, 
-      function(d) { return x(d.AL) }];
+
+    energy_svg.append("text")
+    .attr("x", FRAME_WIDTH/2)
+    .attr("y", 0 - MARGINS.top/2)
+    .attr("text-anchor", "middle") 
+    .text("Energy Input Per Year");
+
+    let prev_x = function(d) { return x(d.Year)};
+    let prev_y = function(d) {return y(d.AL)}; 
+    prev_point = [prev_x, prev_y];
     console.log(prev_point);
 
 }
@@ -221,6 +244,13 @@ files=["data_clean/labour_input.csv", "data_clean/pesticide_consumption.csv",
       .attr('y1', y(prev_point[1]))
       .attr('x2', x(data.Year))
       .attr('y2', y(data.AL));
+
+    labor_svg.append("text")
+    .attr("x", FRAME_WIDTH/2)
+    .attr("y", 0 - MARGINS.top/2)
+    .attr("text-anchor", "middle") 
+    .text("Labor Input Per Year");
+
     prev_point = [function(d) { return x(d.Year) }, 
       function(d) { return x(d.AL) }];
     console.log(prev_point);
