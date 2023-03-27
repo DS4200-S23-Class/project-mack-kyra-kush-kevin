@@ -69,8 +69,6 @@ files=["data_clean/labour_input.csv", "data_clean/pesticide_consumption.csv",
 
   d3.csv("data_clean/pesticide_consumption.csv").then((data) => {
 
-    function fitter (data) {
-
     //Add X axis --> it is a date format
     let x = d3.scaleLinear()
       .domain([d3.min(data, function(d) { return d.Year; })
@@ -88,16 +86,21 @@ files=["data_clean/labour_input.csv", "data_clean/pesticide_consumption.csv",
       .call(d3.axisLeft(y));
     // Add the line
 
-    pest_svg.append("line")
+    for (let i = 0; i < data.length; i++) {
+      pest_svg.append("line")
       .datum(data)
       .attr("fill", "none")
       .attr("stroke", "steelblue")
       .attr("stroke-width", 1.5)
-      .attr('x1', x(prev_point[0]))
-      .attr('y1', y(prev_point[1]))
-      .attr('x2', x(data.Year))
-      .attr('y2', y(data.AL));
+      .attr('x1', prev_point[0])
+      .attr('y1', prev_point[1])
+      .attr('x2', x(data[i].Year))
+      .attr('y2', y(data[i].AL));
 
+      prev_point = [x(data[i].Year), y(data[i].AL)];
+
+
+    }
 
     pest_svg.append("text")
     .attr("x", FRAME_WIDTH/2)
@@ -105,11 +108,7 @@ files=["data_clean/labour_input.csv", "data_clean/pesticide_consumption.csv",
     .attr("text-anchor", "middle") 
     .text("Pesticide Consumption Per Year");
 
-    prev_point = [function(d) { return x(d.Year) }, 
-      function(d) { return x(d.AL) }];
-    console.log(prev_point);
 
-}
       fitter(data);
     })
   }
@@ -118,8 +117,6 @@ files=["data_clean/labour_input.csv", "data_clean/pesticide_consumption.csv",
 
   d3.csv("data_clean/fertilizer_consumption.csv").then((data) => {
 
-    function fitter (data) {
-
     //Add X axis --> it is a date format
     let x = d3.scaleLinear()
       .domain([d3.min(data, function(d) { return d.Year; })
@@ -137,36 +134,37 @@ files=["data_clean/labour_input.csv", "data_clean/pesticide_consumption.csv",
       .call(d3.axisLeft(y));
     // Add the line
 
-    fert_svg.append("line")
+    for (let i = 0; i < data.length; i++) {
+      fert_svg.append("line")
       .datum(data)
       .attr("fill", "none")
       .attr("stroke", "steelblue")
       .attr("stroke-width", 1.5)
-      .attr('x1', x(prev_point[0]))
-      .attr('y1', y(prev_point[1]))
-      .attr('x2', x(data.Year))
-      .attr('y2', y(data.AL));
+      .attr('x1', prev_point[0])
+      .attr('y1', prev_point[1])
+      .attr('x2', x(data[i].Year))
+      .attr('y2', y(data[i].AL));
 
+      prev_point = [x(data[i].Year), y(data[i].AL)];
+
+
+    }
     fert_svg.append("text")
       .attr("x", FRAME_WIDTH/2)
       .attr("y", 0 - MARGINS.top/2)
       .attr("text-anchor", "middle") 
       .text("Fertilizer Consumption Per Year");
-    prev_point = [function(d) { return x(d.Year) }, 
-      function(d) { return x(d.AL) }];
-    console.log(prev_point);
 
-}
+
       fitter(data);
     })
   }
 
   function build_energy_input(){
   let prev_point = [0, 0];
-
+  let counter = 0;
   d3.csv("data_clean/energy_input.csv").then((data) => {
 
-    function fitter (data) {
 
     //Add X axis --> it is a date format
     let x = d3.scaleLinear()
@@ -185,29 +183,31 @@ files=["data_clean/labour_input.csv", "data_clean/pesticide_consumption.csv",
       .call(d3.axisLeft(y));
     // Add the line
 
-    energy_svg.append("line")
+    for (let i = 0; i < data.length; i++) {
+      energy_svg.append("line")
       .datum(data)
       .attr("fill", "none")
       .attr("stroke", "steelblue")
       .attr("stroke-width", 1.5)
-      .attr('x1', x(prev_point[0]))
-      .attr('y1', y(prev_point[1]))
-      .attr('x2', x(data.Year))
-      .attr('y2', y(data.AL));
+      .attr('x1', prev_point[0])
+      .attr('y1', prev_point[1])
+      .attr('x2', x(data[i].Year))
+      .attr('y2', y(data[i].AL));
 
+      prev_point = [x(data[i].Year), y(data[i].AL)];
+
+
+    }
+
+    
     energy_svg.append("text")
     .attr("x", FRAME_WIDTH/2)
     .attr("y", 0 - MARGINS.top/2)
     .attr("text-anchor", "middle") 
     .text("Energy Input Per Year");
 
-    let prev_x = function(d) { return x(d.Year)};
-    let prev_y = function(d) {return y(d.AL)}; 
-    prev_point = [prev_x, prev_y];
-    console.log(prev_point);
 
-}
-      fitter(data);
+  
     })
   }
 
@@ -216,8 +216,6 @@ files=["data_clean/labour_input.csv", "data_clean/pesticide_consumption.csv",
 
   d3.csv("data_clean/labour_input.csv").then((data) => {
 
-    function fitter (data) {
-
     //Add X axis --> it is a date format
     let x = d3.scaleLinear()
       .domain([d3.min(data, function(d) { return d.Year; })
@@ -235,28 +233,27 @@ files=["data_clean/labour_input.csv", "data_clean/pesticide_consumption.csv",
       .call(d3.axisLeft(y));
     // Add the line
 
-    labor_svg.append("line")
+    for (let i = 0; i < data.length; i++) {
+      labor_svg.append("line")
       .datum(data)
       .attr("fill", "none")
       .attr("stroke", "steelblue")
       .attr("stroke-width", 1.5)
-      .attr('x1', x(prev_point[0]))
-      .attr('y1', y(prev_point[1]))
-      .attr('x2', x(data.Year))
-      .attr('y2', y(data.AL));
+      .attr('x1', prev_point[0])
+      .attr('y1', prev_point[1])
+      .attr('x2', x(data[i].Year))
+      .attr('y2', y(data[i].AL));
 
+      prev_point = [x(data[i].Year), y(data[i].AL)];
+
+
+    }
     labor_svg.append("text")
     .attr("x", FRAME_WIDTH/2)
     .attr("y", 0 - MARGINS.top/2)
     .attr("text-anchor", "middle") 
     .text("Labor Input Per Year");
 
-    prev_point = [function(d) { return x(d.Year) }, 
-      function(d) { return x(d.AL) }];
-    console.log(prev_point);
-
-}
-      fitter(data);
     })
   }
 
