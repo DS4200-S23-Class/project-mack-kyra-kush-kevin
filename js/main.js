@@ -4,6 +4,8 @@ const MARGINS = {left: 50, right: 50, top: 50, bottom: 50};
 const VIS_HEIGHT = FRAME_HEIGHT - MARGINS.top - MARGINS.bottom;
 const VIS_WIDTH = FRAME_WIDTH - MARGINS.left - MARGINS.right;
 
+
+
 let pest_svg = d3.select("#pest")
   .append("svg")
     .attr("width", FRAME_WIDTH + MARGINS.left + MARGINS.right)
@@ -39,32 +41,75 @@ let labor_svg = d3.select("#labor")
     .attr("transform",
           "translate(" + MARGINS.left + "," + MARGINS.top + ")");
   
+let labor_tooltip = d3.select("#labor")
+            .append("div")
+            .style("position", "absolute")
+            .style("opacity", 0)
+            .attr("class", "tooltip")
+            .style("background-color", "white")
+            .style("border", "solid")
+            .style("border-width", "2px")
+            .style("border-radius", "5px")
+            .style("padding", "5px");
+
+let energy_tooltip = d3.select("#energy")
+            .append("div")
+            .style("position", "absolute")
+            .style("opacity", 0)
+            .attr("class", "tooltip")
+            .style("background-color", "white")
+            .style("border", "solid")
+            .style("border-width", "2px")
+            .style("border-radius", "5px")
+            .style("padding", "5px");
+
+let fert_tooltip = d3.select("#fert")
+            .append("div")
+            .style("position", "absolute")
+            .style("opacity", 0)
+            .attr("class", "tooltip")
+            .style("background-color", "white")
+            .style("border", "solid")
+            .style("border-width", "2px")
+            .style("border-radius", "5px")
+            .style("padding", "5px");
+
+let pest_tooltip = d3.select("#pest")
+            .append("div")
+            .style("position", "absolute")
+            .style("opacity", 0)
+            .attr("class", "tooltip")
+            .style("background-color", "white")
+            .style("border", "solid")
+            .style("border-width", "2px")
+            .style("border-radius", "5px")
+            .style("padding", "5px");
 
 
-// mouse handlers for circles
-function handleMouseover(event, d) { 
-    event.target.style.fill = "orange";
-}; 
-
-function handleMouseleave(event, d) { 
-    event.target.style.fill = "darkred";   
-}; 
-
-function handleClick(event, d) { 
-    if (event.target.style.stroke === "lightblue") { 
-        event.target.style.stroke = "";}   
-    else { 
-        event.target.style.stroke = "lightblue"; 
-        event.target.style.strokeWidth = "3px"; 
-        } 
-}; 
 
 
+function build_pesticide(states){
+  
 
-
-  function build_pesticide(states){
   states = Array.from(states);
+
+
+
     
+    
+  d3.csv("data_clean/pesticide_consumption_F.csv").then((data) => {
+
+
+    let x = d3.scaleLinear()
+      .domain([d3.min(data, function(d) { return d.Year; })
+        , d3.max(data, function(d) { return d.Year; })])
+      .range([ 0, FRAME_WIDTH ]);
+  // Add Y axis
+    let y = d3.scaleLinear()
+      .domain([0, d3.max(data, function(d) { return +d.Value; })])
+      .range([ FRAME_HEIGHT, 0 ]);
+
+
     pest_svg.append("text")
           .attr("x", FRAME_WIDTH/2)
           .attr("y", 0 - MARGINS.top/2)
@@ -76,27 +121,26 @@ function handleClick(event, d) {
           .attr("x", FRAME_WIDTH/2)
           .attr("y", FRAME_HEIGHT + 40)
           .text("Year");
-  d3.csv("data_clean/pesticide_consumption_F.csv").then((data) => {
-
-    //Add X axis --> it is a date format
-    let x = d3.scaleLinear()
-      .domain([d3.min(data, function(d) { return d.Year; })
-        , d3.max(data, function(d) { return d.Year; })])
-      .range([ 0, FRAME_WIDTH ]);
     pest_svg.append("g")
       .attr("transform", "translate(0," + FRAME_HEIGHT + ")")
       .call(d3.axisBottom(x));
-
-    // Add Y axis
-    let y = d3.scaleLinear()
-      .domain([0, d3.max(data, function(d) { return +d.Value; })])
-      .range([ FRAME_HEIGHT, 0 ]);
     pest_svg.append("g")
       .call(d3.axisLeft(y));
+
+      pest_svg.append("text")
+      .attr("x", FRAME_WIDTH/2)
+      .attr("y", 0 - MARGINS.top/2)
+      .attr("text-anchor", "middle") 
+      .text("Pesticide Consumption Per Year");
+
+      firstRun = 0;
+    
+    
+    
     // Add the line
 
     states.forEach(item => {
-      let prev_point = [0, 0];
+      let prev_point = [0, y(data[0].Value)];
 
       row = data.filter(function(d){ return d.State == item; });
 
@@ -111,7 +155,25 @@ function handleClick(event, d) {
         .attr('x1', prev_point[0])
         .attr('y1', prev_point[1])
         .attr('x2', x(row[i].Year))
-        .attr('y2', y(row[i].Value));
+        .attr('y2', y(row[i].Value))
+        .on("mouseover", function(event, d){
+          d3.select(item).style("opacity", 9);
+          pest_tooltip
+            .style("opacity", 1)
+            .html(row[i].State + " in " + row[i].Year +": " + row[i].Value)
+            .style("left", `${event.screenX+10}px`)
+            .style("top", `${event.screenY - 100}px`)
+          })
+        .on("mousemove", function(event, d) {
+          pest_tooltip
+          .html(row[i].State + " in " + row[i].Year +": " + row[i].Value)
+          .style("left", `${event.layerX+10}px`)
+          .style("top", `${event.layerY}px`)
+      })
+        .on("mouseleave", function(event, d) {
+          pest_tooltip
+          .style("opacity", 0);
+        });
 
       prev_point = [x(row[i].Year), y(row[i].Value)];
     };
@@ -119,15 +181,13 @@ function handleClick(event, d) {
 
     })
 
-    pest_svg.append("text")
-    .attr("x", FRAME_WIDTH/2)
-    .attr("y", 0 - MARGINS.top/2)
-    .attr("text-anchor", "middle") 
-    .text("Pesticide Consumption Per Year");
+    
 
 
     
   })
+
+    
 }
   function build_fertilizer(states){
   states = Array.from(states);
@@ -162,10 +222,10 @@ function handleClick(event, d) {
     // Add the line
 
     states.forEach(item => {
-      let prev_point = [0, 0];
+      let prev_point = [0, y(data[0].Value)];
 
       row = data.filter(function(d){ return d.State == item; });
-      console.log(row[1].Year);
+      //console.log(row[1].Year);
 
 
 
@@ -178,7 +238,25 @@ function handleClick(event, d) {
         .attr('x1', prev_point[0])
         .attr('y1', prev_point[1])
         .attr('x2', x(row[i].Year))
-        .attr('y2', y(row[i].Value));
+        .attr('y2', y(row[i].Value))
+        .on("mouseover", function(event, d){
+          d3.select(item).style("opacity", 9);
+          fert_tooltip
+            .style("opacity", 1)
+            .html(row[i].State + " in " + row[i].Year +": " + row[i].Value)
+            .style("left", `${event.screenX+10}px`)
+            .style("top", `${event.screenY - 100}px`)
+          })
+        .on("mousemove", function(event, d) {
+          fert_tooltip
+          .html(row[i].State + " in " + row[i].Year +": " + row[i].Value)
+          .style("left", `${event.layerX+10}px`)
+          .style("top", `${event.layerY}px`)
+      })
+        .on("mouseleave", function(event, d) {
+          fert_tooltip
+          .style("opacity", 0);
+        });
 
       prev_point = [x(row[i].Year), y(row[i].Value)];
     };
@@ -227,10 +305,9 @@ function handleClick(event, d) {
     // Add the line
 
     states.forEach(item => {
-      let prev_point = [0, 0];
+      let prev_point = [0, y(data[0].Value)];
 
       row = data.filter(function(d){ return d.State == item; });
-      console.log(row[1].Year);
 
 
 
@@ -243,7 +320,25 @@ function handleClick(event, d) {
         .attr('x1', prev_point[0])
         .attr('y1', prev_point[1])
         .attr('x2', x(row[i].Year))
-        .attr('y2', y(row[i].Value));
+        .attr('y2', y(row[i].Value))
+        .on("mouseover", function(event, d){
+          d3.select(item).style("opacity", 9);
+          energy_tooltip
+            .style("opacity", 1)
+            .html(row[i].State + " in " + row[i].Year +": " + row[i].Value)
+            .style("left", `${event.screenX+10}px`)
+            .style("top", `${event.screenY - 100}px`)
+          })
+        .on("mousemove", function(event, d) {
+          energy_tooltip
+          .html(row[i].State + " in " + row[i].Year +": " + row[i].Value)
+          .style("left", `${event.layerX+10}px`)
+          .style("top", `${event.layerY}px`)
+      })
+        .on("mouseleave", function(event, d) {
+          energy_tooltip
+          .style("opacity", 0);
+        });
 
       prev_point = [x(row[i].Year), y(row[i].Value)];
     };
@@ -292,16 +387,16 @@ function handleClick(event, d) {
       .call(d3.axisLeft(y));
 
     states.forEach(item => {
-      let prev_point = [0, 0];
+      let prev_point = [0, y(data[0].Value)];
 
       row = data.filter(function(d){ return d.State == item; });
-      console.log(row[1].Year);
 
       
 
       for (let i = 0; i < 45; i++) {
         labor_svg.append("line")
         .datum(data)
+        //.enter()
         .attr("id", item)
         .attr("fill", "none")
         .attr("stroke", "steelblue")
@@ -309,20 +404,35 @@ function handleClick(event, d) {
         .attr('x1', prev_point[0])
         .attr('y1', prev_point[1])
         .attr('x2', x(row[i].Year))
-        .attr('y2', y(row[i].Value));
+        .attr('y2', y(row[i].Value))
+        .on("mouseover", function(event, d){
+          d3.select(item).style("opacity", 9);
+          labor_tooltip
+            .style("opacity", 1)
+            .html(row[i].State + " in " + row[i].Year +": " + row[i].Value)
+            .style("left", `${event.screenX+10}px`)
+            .style("top", `${event.screenY - 100}px`)
+          })
+        .on("mousemove", function(event, d) {
+          labor_tooltip
+          .html(row[i].State + " in " + row[i].Year +": " + row[i].Value)
+          .style("left", `${event.layerX+10}px`)
+          .style("top", `${event.layerY}px`)
+      })
+        .on("mouseleave", function(event, d) {
+          labor_tooltip
+          .style("opacity", 0);
+        });
+          //.Year + " in " + row[i].State + ": "
+          //+ row[i].Value))
+        //.on("mouseout", handleMouseleave());
 
         prev_point = [x(row[i].Year), y(row[i].Value)];
 
-        d3.select("#line")
-        .on("mouseover", handleMouseover)
-        //.on("mousemove", function(){return tooltip.style("top", (event.pageY-800)+"px").style("left",(event.pageX-800)+"px");})
-        .on("mouseout", handleMouseleave);
+        
+        
 
-        let tooltip = d3.select(item)
-        .append("div")
-        .style("position", "absolute")
-        .style("visibility", "hidden")
-        .text("I'm a circle!");
+        
 
         
     };
@@ -344,16 +454,27 @@ function handleClick(event, d) {
     build_fertilizer(states_selected);
     build_energy_input(states_selected);
     build_labor_input(states_selected);
+
+    let key = document.getElementById("list");
+
+    d3.selectAll().remove();
+
+    states_selected.forEach(item => {
+      key.innerHTML += "<li id='"+ item + "'>" + item + 'color</li>'
+    })
+
   }
 
   function removeLine(){
     let newState = document.getElementById("selector").value;
 
+    d3.selectAll(newState).remove();
+
     if (states_selected.includes(newState)){
       const index = states_selected.indexOf(newState);
       states_selected.splice(index, 1);
 
-      console.log(states_selected);
+      //console.log(states_selected);
 
       build_pesticide(states_selected);
       build_fertilizer(states_selected);
