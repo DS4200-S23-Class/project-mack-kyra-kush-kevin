@@ -1,10 +1,116 @@
 const FRAME_HEIGHT = 400;
 const FRAME_WIDTH = 400;
+const FRAME_WIDTH_LONG = 900;
 const MARGINS = {left: 50, right: 50, top: 50, bottom: 50};
 const VIS_HEIGHT = FRAME_HEIGHT - MARGINS.top - MARGINS.bottom;
 const VIS_WIDTH = FRAME_WIDTH - MARGINS.left - MARGINS.right;
+const VIS_WIDTH_LONG = FRAME_WIDTH_LONG - MARGINS.left - MARGINS.right;
 
-const colors = ['steelblue', 'violet', 'forestgreen', 'darkred'];
+/**************************************************************/
+/**************************************************************/
+// append the svg object to the body of the page
+var svg = d3.select("#viz1")
+  .append("svg")
+    .attr("width", FRAME_WIDTH_LONG)
+    .attr("height", FRAME_HEIGHT)
+  .append("g")
+    .attr("transform",
+          "translate(" + MARGINS.left + "," + MARGINS.top + ")");
+
+//Read the data
+d3.csv("data_clean/table01a.csv", function(data) {
+
+    // List of groups (here I have one group per column)
+    var allGroup = ["Total Output", "All Livestock and Products",
+    "Livestock and Products: Meat", "Livestock and Products: Dairy",
+    "Livestock and Products: Poultry and Eggs", "All Crops", "Crops: Food Grains",
+    "Crops: Feed Crops", "Crops: Oil Crops", "Crops: Vegetables and Melons",
+  "Crops: Fruits and Tree Nuts", "Crops: Other"]
+
+    // add the options to the button
+    d3.select("#selectButton")
+      .selectAll('myOptions')
+     	.data(allGroup)
+      .enter()
+    	.append('option')
+      .text(d => d)
+      .attr("value", d => d)
+
+    // Add X axis --> it is a date format
+    var x = d3.scaleLinear()
+      .domain([1960,2004])
+      .range([ 0, VIS_WIDTH_LONG ]);
+    svg.append("g")
+      .attr("transform", "translate(0," + VIS_HEIGHT + ")")
+      .call(d3.axisBottom(x));
+
+    // Add Y axis
+    var y = d3.scaleLinear()
+      .domain( [0,425000])
+      .range([ VIS_HEIGHT, 0 ]);
+    svg.append("g")
+      .call(d3.axisLeft(y));
+
+    // Initialize line with group a
+    var line = svg
+      .append('g')
+      .append("path")
+        .datum(data)
+        .attr("d", d3.line()
+          .x(function(d) { return x(+d.Year) })
+          .y(function(d) { return y(+d["Total output: Quantity (million, $2015)"]) })
+        )
+        .attr("stroke", "black")
+        .style("stroke-width", 4)
+        .style("fill", "none")
+
+    // Initialize dots with group a
+    var dot = svg
+      .selectAll('circle')
+      .data(data)
+      .enter()
+      .append('circle')
+        .attr("cx", function(d) { return x(+d.Year) })
+        .attr("cy", function(d) { return y(+d["Total output: Quantity (million, $2015)"]) })
+        .attr("r", 7)
+        .style("fill", "#69b3a2")
+
+
+    // A function that update the chart
+    function update(selectedGroup) {
+
+      // Create new data with the selection?
+      const dataFilter = data.map(function(d){return {Year: d.Year, value:d[selectedGroup]} })
+
+      // Give these new data to update line
+      line
+          .datum(dataFilter)
+          .transition()
+          .duration(1000)
+          .attr("d", d3.line()
+            .x(function(d) { return x(+d.Year) })
+            .y(function(d) { return y(+d.value) })
+          )
+      dot
+        .data(dataFilter)
+        .transition()
+        .duration(1000)
+          .attr("cx", function(d) { return x(+d.Year) })
+          .attr("cy", function(d) { return y(+d.value) })
+    }
+
+    // When the button is changed, run the updateChart function
+    d3.select("#selectButton").on("change", function(d) {
+        // recover the option that has been chosen
+        let selectedOption = d3.select(this).property("value")
+        // run the updateChart function with this selected option
+        update(selectedOption)
+    })
+
+})
+
+
+const colors = ['steelblue', 'violet', 'forestgreen', 'darkred', 'grey', 'black', 'brown', 'orange'];
 
 let pest_svg = d3.select("#pest")
   .append("svg")
@@ -107,6 +213,14 @@ function build_pesticide(states, firstRun){
             .attr("x", FRAME_WIDTH/2)
             .attr("y", FRAME_HEIGHT + 40)
             .text("Year");
+      pest_svg.append("text")
+            .attr("class", "y label")
+            .attr("text-anchor", "end")
+            .attr("x", 0 - FRAME_WIDTH/4)
+            .attr("y", 0 - MARGINS.left)
+            .attr("dy", ".75em")
+            .attr("transform", "rotate(-90)")
+            .text("Y-Value: check footnote");
       pest_svg.append("g")
         .attr("transform", "translate(0," + FRAME_HEIGHT + ")")
         .call(d3.axisBottom(x));
@@ -207,6 +321,14 @@ function build_pesticide(states, firstRun){
           .attr("text-anchor", "middle") 
           .text("Fertilizer Consumption Per Year")
     fert_svg.append("text")
+          .attr("class", "y label")
+          .attr("text-anchor", "end")
+          .attr("x", 0 - FRAME_WIDTH/4)
+          .attr("y", 0 - MARGINS.left)
+          .attr("dy", ".75em")
+          .attr("transform", "rotate(-90)")
+          .text("Y-Value: check footnote");
+    fert_svg.append("text")
           .attr("class", "x label")
           .attr("text-anchor", "end")
           .attr("x", FRAME_WIDTH/2)
@@ -287,6 +409,14 @@ function build_pesticide(states, firstRun){
           .attr("y", 0 - MARGINS.top/2)
           .attr("text-anchor", "middle") 
           .text("Energy Input Per Year")
+        energy_svg.append("text")
+            .attr("class", "y label")
+            .attr("text-anchor", "end")
+            .attr("x", 0 - FRAME_WIDTH/4)
+            .attr("y", 0 - MARGINS.left)
+            .attr("dy", ".75em")
+            .attr("transform", "rotate(-90)")
+            .text("Y-Value: check footnote");
         energy_svg.append("text")
           .attr("class", "x label")
           .attr("text-anchor", "end")
@@ -384,6 +514,14 @@ function build_pesticide(states, firstRun){
           .attr("y", 0 - MARGINS.top/2)
           .attr("text-anchor", "middle") 
           .text("Labor Input Per Year")
+      labor_svg.append("text")
+            .attr("class", "y label")
+            .attr("text-anchor", "end")
+            .attr("x", 0 - FRAME_WIDTH/4)
+            .attr("y", 0 - MARGINS.left)
+            .attr("dy", ".75em")
+            .attr("transform", "rotate(-90)")
+            .text("Y-Value: check footnote");
       labor_svg.append("text")
           .attr("class", "x label")
           .attr("text-anchor", "end")
