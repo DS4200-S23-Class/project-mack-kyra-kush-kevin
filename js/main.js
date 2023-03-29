@@ -13,11 +13,11 @@ function build_outputs() {
   // append the svg object to the body of the page
   let svg = d3.select("#viz1")
     .append("svg")
-      .attr("width", FRAME_WIDTH_LONG)
+      .attr("width", FRAME_WIDTH_LONG + MARGINS.left)
       .attr("height", FRAME_HEIGHT)
     .append("g")
       .attr("transform",
-            "translate(" + MARGINS.left + "," + MARGINS.top + ")");
+            "translate(" + MARGINS.left *2 + "," + MARGINS.top + ")");
 
   // List of groups (here I have one group per column)
   let allGroup = ["Total Output", "All Livestock and Products",
@@ -50,6 +50,26 @@ function build_outputs() {
   svg.append("g")
     .call(d3.axisLeft(y));
 
+  svg.append("text")
+    .attr("class", "x label")
+    .attr("text-anchor", "end")
+    .attr("x", FRAME_WIDTH_LONG/2 - MARGINS.right)
+    .attr("y", VIS_HEIGHT + 40)
+    .text("Year");
+  svg.append("text")
+    .attr("class", "y label")
+    .attr("text-anchor", "end")
+    .attr("x", -50)
+    .attr("y", 0 - MARGINS.left - 20)
+    .attr("dy", ".75em")
+    .attr("transform", "rotate(-90)")
+    .text("Quantity: Millions in USD Produced");
+  svg.append("text")
+    .attr("x", FRAME_WIDTH_LONG/2 - MARGINS.right)
+    .attr("y", 0 - MARGINS.top/2)
+    .attr("text-anchor", "middle")
+    .text("Agriculture Output Over Time")
+
   //Read the data
   d3.csv("data_clean/table01a_F.csv").then(function(data) {
   /*
@@ -68,6 +88,7 @@ function build_outputs() {
 
       prev_point = [x(row[i].Year), y(row[i].Value)];
     }*/
+
 
       // Initialize line with group a
       let line = svg
@@ -139,7 +160,7 @@ function build_stacked_outputs() {
             "translate(" + MARGINS.left + "," + MARGINS.top + ")");
 
 // Parse the Data
-d3.csv("data_clean/table01a_F.csv").then(function(data) {
+d3.csv("data_clean/table01a_F_R.csv").then(function(data) {
 
   // List of groups = header of the csv files
   let keys = data.columns.slice(1)
@@ -154,7 +175,7 @@ d3.csv("data_clean/table01a_F.csv").then(function(data) {
 
   // Add Y axis
   let y = d3.scaleLinear()
-    .domain([0, 450000])
+    .domain([0, 350000])
     .range([ VIS_HEIGHT, 0 ]);
   svg.append("g")
     .call(d3.axisLeft(y));
@@ -162,8 +183,8 @@ d3.csv("data_clean/table01a_F.csv").then(function(data) {
   // color palette
   let color = d3.scaleOrdinal()
     .domain(keys)
-    .range(['#800000','#808000','#469990','#000075','#e6194B','#f58231',
-    '##ffe119','#bfef45','#42d4f4','#4363d8','#911eb4','#f032e6'])
+    .range(['#000075','#e6194B','#f58231',
+    '#bfef45','#42d4f4','#4363d8','#911eb4','#ffe119','#f032e6'])
 
   //stack the data?
   let stackedData = d3.stack()
@@ -179,7 +200,7 @@ d3.csv("data_clean/table01a_F.csv").then(function(data) {
     .append("path")
       .style("fill", function(d) { console.log(d.key) ; return color(d.key); })
       .attr("d", d3.area()
-        .x(function(d, i) { return x(d.data.year); })
+        .x(function(d, i) { return x(d.data.Year); })
         .y0(function(d) { return y(d[0]); })
         .y1(function(d) { return y(d[1]); })
     )
