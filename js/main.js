@@ -9,7 +9,7 @@ const VIS_WIDTH_LONG = FRAME_WIDTH_LONG - MARGINS.left - MARGINS.right;
 /**************************************************************/
 /**************************************************************/
 // append the svg object to the body of the page
-var svg = d3.select("#viz1")
+let svg = d3.select("#viz1")
   .append("svg")
     .attr("width", FRAME_WIDTH_LONG)
     .attr("height", FRAME_HEIGHT)
@@ -17,61 +17,61 @@ var svg = d3.select("#viz1")
     .attr("transform",
           "translate(" + MARGINS.left + "," + MARGINS.top + ")");
 
+// List of groups (here I have one group per column)
+let allGroup = ["Total Output", "All Livestock and Products",
+  "Livestock and Products: Meat", "Livestock and Products: Dairy",
+  "Livestock and Products: Poultry and Eggs", "All Crops", "Crops: Food Grains",
+  "Crops: Feed Crops", "Crops: Oil Crops", "Crops: Vegetables and Melons",
+  "Crops: Fruits and Tree Nuts", "Crops: Other"];
+
+// add the options to the button
+d3.select("#selectButton")
+  .selectAll('myOptions')
+ 	.data(allGroup)
+  .enter()
+  	.append('option')
+    .text(d => d)
+    .attr("value", d => d);
+
+// Add X axis --> it is a date format
+let x = d3.scaleLinear()
+  .domain([1960,2004])
+  .range([ 0, VIS_WIDTH_LONG ]);
+svg.append("g")
+  .attr("transform", "translate(0," + VIS_HEIGHT + ")")
+  .call(d3.axisBottom(x));
+
+// Add Y axis
+let y = d3.scaleLinear()
+  .domain( [0,425000])
+  .range([ VIS_HEIGHT, 0 ]);
+svg.append("g")
+  .call(d3.axisLeft(y));
+
 //Read the data
 d3.csv("data_clean/table01a.csv", function(data) {
 
-    // List of groups (here I have one group per column)
-    var allGroup = ["Total Output", "All Livestock and Products",
-    "Livestock and Products: Meat", "Livestock and Products: Dairy",
-    "Livestock and Products: Poultry and Eggs", "All Crops", "Crops: Food Grains",
-    "Crops: Feed Crops", "Crops: Oil Crops", "Crops: Vegetables and Melons",
-  "Crops: Fruits and Tree Nuts", "Crops: Other"]
-
-    // add the options to the button
-    d3.select("#selectButton")
-      .selectAll('myOptions')
-     	.data(allGroup)
-      .enter()
-    	.append('option')
-      .text(d => d)
-      .attr("value", d => d)
-
-    // Add X axis --> it is a date format
-    var x = d3.scaleLinear()
-      .domain([1960,2004])
-      .range([ 0, VIS_WIDTH_LONG ]);
-    svg.append("g")
-      .attr("transform", "translate(0," + VIS_HEIGHT + ")")
-      .call(d3.axisBottom(x));
-
-    // Add Y axis
-    var y = d3.scaleLinear()
-      .domain( [0,425000])
-      .range([ VIS_HEIGHT, 0 ]);
-    svg.append("g")
-      .call(d3.axisLeft(y));
-
     // Initialize line with group a
-    var line = svg
+    let line = svg
       .append('g')
       .append("path")
         .datum(data)
         .attr("d", d3.line()
-          .x(function(d) { return x(+d.Year) })
-          .y(function(d) { return y(+d["Total output: Quantity (million, $2015)"]) })
+          .x(function(d) { return x(d.Year); })
+          .y(function(d) { return y(d["Total Output"]); })
         )
         .attr("stroke", "black")
         .style("stroke-width", 4)
-        .style("fill", "none")
+        .style("fill", "none");
 
     // Initialize dots with group a
-    var dot = svg
+    let dot = svg
       .selectAll('circle')
       .data(data)
       .enter()
       .append('circle')
-        .attr("cx", function(d) { return x(+d.Year) })
-        .attr("cy", function(d) { return y(+d["Total output: Quantity (million, $2015)"]) })
+        .attr("cx", function(d) { return x(1970) })
+        .attr("cy", function(d) { return y(100000) })
         .attr("r", 7)
         .style("fill", "#69b3a2")
 
