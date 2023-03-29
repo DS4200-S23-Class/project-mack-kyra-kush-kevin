@@ -33,8 +33,8 @@ d3.csv("data_clean/table01a.csv", function(data) {
      	.data(allGroup)
       .enter()
     	.append('option')
-      .text(function (d) { return d; }) // text showed in the menu
-      .attr("value", function (d) { return d; }) // corresponding value returned by the button
+      .text(d => d)
+      .attr("value", d => d)
 
     // Add X axis --> it is a date format
     var x = d3.scaleLinear()
@@ -80,7 +80,7 @@ d3.csv("data_clean/table01a.csv", function(data) {
     function update(selectedGroup) {
 
       // Create new data with the selection?
-      var dataFilter = data.map(function(d){return {Year: d.Year, value:d[selectedGroup]} })
+      const dataFilter = data.map(function(d){return {Year: d.Year, value:d[selectedGroup]} })
 
       // Give these new data to update line
       line
@@ -102,7 +102,7 @@ d3.csv("data_clean/table01a.csv", function(data) {
     // When the button is changed, run the updateChart function
     d3.select("#selectButton").on("change", function(d) {
         // recover the option that has been chosen
-        var selectedOption = d3.select(this).property("value")
+        let selectedOption = d3.select(this).property("value")
         // run the updateChart function with this selected option
         update(selectedOption)
     })
