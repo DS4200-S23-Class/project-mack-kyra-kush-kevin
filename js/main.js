@@ -236,9 +236,8 @@ let pest_svg = d3.select("#pest")
   .append("svg")
     .attr("width", FRAME_WIDTH + MARGINS.left + MARGINS.right)
     .attr("height", FRAME_HEIGHT + MARGINS.top + MARGINS.bottom)
-    // .call(d3.zoom().on("zoom", function () {
-    //    pest_svg.attr("transform", d3.event.transform)
-    // }))
+    .call(d3.zoom().on("zoom", function () {
+    pest_svg.attr("transform", d3.zoomTransform(this))}))
   .append("g")
     .attr("transform",
           "translate(" + MARGINS.left + "," + MARGINS.top + ")");
@@ -246,6 +245,8 @@ let fert_svg = d3.select("#fert")
   .append("svg")
     .attr("width", FRAME_WIDTH + MARGINS.left + MARGINS.right)
     .attr("height", FRAME_HEIGHT + MARGINS.top + MARGINS.bottom)
+    .call(d3.zoom().on("zoom", function () {
+    fert_svg.attr("transform", d3.zoomTransform(this))}))
   .append("g")
     .attr("transform",
           "translate("  + MARGINS.left + "," + MARGINS.top + ")");
@@ -253,6 +254,8 @@ let energy_svg = d3.select("#energy")
   .append("svg")
     .attr("width", FRAME_WIDTH + MARGINS.left + MARGINS.right)
     .attr("height", FRAME_HEIGHT + MARGINS.top + MARGINS.bottom)
+    .call(d3.zoom().on("zoom", function () {
+    energy_svg.attr("transform", d3.zoomTransform(this))}))
   .append("g")
     .attr("transform",
           "translate(" + MARGINS.left + "," + MARGINS.top + ")");
@@ -261,6 +264,8 @@ let labor_svg = d3.select("#labor")
   .append("svg")
     .attr("width", FRAME_WIDTH + MARGINS.left + MARGINS.right)
     .attr("height", FRAME_HEIGHT + MARGINS.top + MARGINS.bottom)
+    .call(d3.zoom().on("zoom", function () {
+    labor_svg.attr("transform", d3.zoomTransform(this))}))
   .append("g")
     .attr("transform",
           "translate(" + MARGINS.left + "," + MARGINS.top + ")");
