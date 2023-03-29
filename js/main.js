@@ -146,11 +146,11 @@ d3.csv("data_clean/table01a_F.csv").then(function(data) {
 
   // Add X axis
   let x = d3.scaleLinear()
-    .domain(d3.extent(data, function(d) { return d.year; }))
+    .domain([1960,2004])
     .range([ 0, VIS_WIDTH_LONG ]);
   svg.append("g")
     .attr("transform", "translate(0," + VIS_HEIGHT + ")")
-    .call(d3.axisBottom(x).ticks(5));
+    .call(d3.axisBottom(x));
 
   // Add Y axis
   let y = d3.scaleLinear()
@@ -162,7 +162,8 @@ d3.csv("data_clean/table01a_F.csv").then(function(data) {
   // color palette
   let color = d3.scaleOrdinal()
     .domain(keys)
-    .range(['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#ffff33','#a65628','#f781bf','#f781bf','#f781bf','#f781bf','#f781bf'])
+    .range(['#800000','#808000','#469990','#000075','#e6194B','#f58231',
+    '##ffe119','#bfef45','#42d4f4','#4363d8','#911eb4','#f032e6'])
 
   //stack the data?
   let stackedData = d3.stack()
@@ -733,3 +734,4 @@ build_fertilizer([], true);
 build_energy_input([], true);
 build_labor_input([], true);
 build_outputs();
+build_stacked_outputs();
