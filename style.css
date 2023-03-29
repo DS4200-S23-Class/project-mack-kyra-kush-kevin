@@ -1,18 +1,35 @@
-body {
-    font-family: Arial;
+
+body{
+    font-family: serif;
+    background-color: skyblue;
 }
 
-h1 {
-    text-align: center;
+#viz1{
+    background-color: wheat;
 }
 
-.centered{
+#viz2{
+    background-color: wheat;
+}
+
+#median {
+    width: 100px;
+    height: 400px;
+}
+
+.lg{
+    background-color: white;
+}
+
+.centered {
     text-align: center;
+
 }
 
 .flex-column {
     display: flex;
     flex-direction: column;
+
 }
 
 .flex-row {
@@ -21,5 +38,8 @@ h1 {
 }
 
 .circle {
-  
+
+}
+
+
 }
