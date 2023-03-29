@@ -153,11 +153,11 @@ function build_stacked_outputs() {
 
   let svg = d3.select("#viz1")
     .append("svg")
-      .attr("width", FRAME_WIDTH_LONG)
+      .attr("width", FRAME_WIDTH_LONG + MARGINS.left)
       .attr("height", FRAME_HEIGHT)
     .append("g")
       .attr("transform",
-            "translate(" + MARGINS.left + "," + MARGINS.top + ")");
+            "translate(" + MARGINS.left * 2 + "," + MARGINS.top + ")");
 
 // Parse the Data
 d3.csv("data_clean/table01a_F_R.csv").then(function(data) {
@@ -179,6 +179,26 @@ d3.csv("data_clean/table01a_F_R.csv").then(function(data) {
     .range([ VIS_HEIGHT, 0 ]);
   svg.append("g")
     .call(d3.axisLeft(y));
+
+  svg.append("text")
+    .attr("class", "x label")
+    .attr("text-anchor", "end")
+    .attr("x", FRAME_WIDTH_LONG/2 - MARGINS.right)
+    .attr("y", VIS_HEIGHT + 40)
+    .text("Year");
+  svg.append("text")
+    .attr("class", "y label")
+    .attr("text-anchor", "end")
+    .attr("x", -50)
+    .attr("y", 0 - MARGINS.left - 20)
+    .attr("dy", ".75em")
+    .attr("transform", "rotate(-90)")
+    .text("Quantity: Millions in USD Produced");
+  svg.append("text")
+    .attr("x", FRAME_WIDTH_LONG/2 - MARGINS.right)
+    .attr("y", 0 - MARGINS.top/2)
+    .attr("text-anchor", "middle")
+    .text("Total Agriculture Output Over Time by Product Type")
 
   // color palette
   let color = d3.scaleOrdinal()
