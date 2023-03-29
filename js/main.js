@@ -9,7 +9,7 @@ const VIS_WIDTH_LONG = FRAME_WIDTH_LONG - MARGINS.left - MARGINS.right;
 /**************************************************************/
 /**************************************************************/
 // append the svg object to the body of the page
-let svg = d3.select("#viz1")
+const svg = d3.select("#viz1")
   .append("svg")
     .attr("width", FRAME_WIDTH_LONG)
     .attr("height", FRAME_HEIGHT)
@@ -19,95 +19,117 @@ let svg = d3.select("#viz1")
     .attr("transform",
           "translate(" + MARGINS.left + "," + MARGINS.top + ")");
 
-// List of groups (here I have one group per column)
-let allGroup = ["Total Output", "All Livestock and Products",
-  "Livestock and Products: Meat", "Livestock and Products: Dairy",
-  "Livestock and Products: Poultry and Eggs", "All Crops", "Crops: Food Grains",
-  "Crops: Feed Crops", "Crops: Oil Crops", "Crops: Vegetables and Melons",
-  "Crops: Fruits and Tree Nuts", "Crops: Other"];
 
-// add the options to the button
-d3.select("#selectButton")
-  .selectAll('myOptions')
- 	.data(allGroup)
-  .enter()
-  	.append('option')
-    .text(d => d)
-    .attr("value", d => d);
 
-// Add X axis --> it is a date format
-let x = d3.scaleLinear()
-  .domain([1960,2004])
-  .range([ 0, VIS_WIDTH_LONG ]);
-svg.append("g")
-  .attr("transform", "translate(0," + VIS_HEIGHT + ")")
-  .call(d3.axisBottom(x));
+  // List of groups (here I have one group per column)
+  // const allGroup = ["Total Output", "All Livestock and Products",
+  //   "Livestock and Products: Meat", "Livestock and Products: Dairy",
+  //   "Livestock and Products: Poultry and Eggs", "All Crops", "Crops: Food Grains",
+  //   "Crops: Feed Crops", "Crops: Oil Crops", "Crops: Vegetables and Melons",
+  //   "Crops: Fruits and Tree Nuts", "Crops: Other"];
 
-// Add Y axis
-let y = d3.scaleLinear()
-  .domain( [0,425000])
-  .range([ VIS_HEIGHT, 0 ]);
-svg.append("g")
-  .call(d3.axisLeft(y));
+  const allGroup = ['Total Output', ' Livestock and products: All livestock and products 1/: Quantity (million, $2015) ',
+                     ' Livestock and products: Meat animals: Quantity (million, $2015) ', 
+                     ' Livestock and products: Dairy: Quantity (million, $2015) ', 
+                     ' Livestock and products: Poultry and eggs: Quantity (million, $2015) ', 
+                     ' Crops: All crops: Quantity (million, $2015) ', ' Crops: Food grains: Quantity (million, $2015) ',
+                     ' Crops: Feed crops: Quantity (million, $2015) ', ' Crops: Oil crops: Quantity (million, $2015) ',
+                     ' Crops: Vegetables and melons: Quantity (million, $2015) ', 
+                     ' Crops: Fruits and tree nuts: Quantity (million, $2015) ', ' Crops: Other crops 2/: Quantity (million, $2015) ']
 
+  // add the options to the button
+  d3.select("#selectButton")
+    .selectAll('myOptions')
+   	  .data(allGroup)
+    .enter()
+    	.append('option')
+      .text(d => d)
+      .attr("value", d => d);
+
+  // Add X axis --> it is a date format
+  const x = d3.scaleLinear()
+    .domain([1960,2004])
+    .range([ 0, VIS_WIDTH_LONG ]);
+  svg.append("g")
+    .attr("transform", "translate(0," + VIS_HEIGHT + ")")
+    .call(d3.axisBottom(x));
+
+  // Add Y axis
+  const y = d3.scaleLinear()
+    .domain( [0,425000])
+    .range([ VIS_HEIGHT, 0 ]);
+  svg.append("g")
+    .call(d3.axisLeft(y));
+
+  // const total = [];
+
+  // for(i = 0; i < data.length; i++) {
+  //   total.push(data[i].'Total Output');
+  // }
+  // console.log(total);
 //Read the data
-d3.csv("data_clean/table01a.csv", function(data) {
+d3.csv("data_clean/table01a_F_swapped.csv", function(data) {
+  //console.log(Object.values(data).slice(0, 45));
+  // Initialize line with group a
+  const line = svg
+    .append('g')
+    .append("path")
+      .datum(data)
+      .attr("d", d3.line()
+        .x(function(d) { return x(d.Year); })
+        .y(function(d) { return y(d['Total Output']); })
+      )
+      .attr("stroke", "black")
+      .style("stroke-width", 4)
+      .style("fill", "none");
 
-    // Initialize line with group a
-    let line = svg
-      .append('g')
-      .append("path")
-        .datum(data)
-        .attr("d", d3.line()
-          .x(function(d) { return x(d.Year); })
-          .y(function(d) { return y(d["Total Output"]); })
-        )
-        .attr("stroke", "black")
-        .style("stroke-width", 4)
-        .style("fill", "none");
-
-    // Initialize dots with group a
-    let dot = svg
-      .selectAll('circle')
-      .data(data)
-      .enter()
-      .append('circle')
-        .attr("cx", function(d) { return x(1970) })
-        .attr("cy", function(d) { return y(100000) })
-        .attr("r", 7)
-        .style("fill", "#69b3a2")
+  // Initialize dots with group a
+  const dot = svg
+    .selectAll('circle')
+    .data(data)
+    .enter()
+    .append('circle')
+      .attr("cx", function(d) { return x(1970) })
+      .attr("cy", function(d) { return y(100000) })
+      .attr("r", 7)
+      .style("fill", "#69b3a2")
 
 
-    // A function that update the chart
-    function update(selectedGroup) {
+  // A function that update the chart
+  function update(selectedGroup) {
+    const year = Array.from(Object.keys(data));
+    const selectedData = Array.from(Object.values(data).splice(0, 45)); // [allGroup.indexOf(selectedGroup)]
+    console.log(selectedData);
+    // Create new data with the selection?
+    const dataFilter = (year, selectedData) => year.map((x, i) => [x, selectedData[i]]); 
 
-      // Create new data with the selection?
-      const dataFilter = data.map(function(d){return {Year: d.Year, value:d[selectedGroup]} })
-
-      // Give these new data to update line
-      line
-          .datum(dataFilter)
-          .transition()
-          .duration(1000)
-          .attr("d", d3.line()
-            .x(function(d) { return x(+d.Year) })
-            .y(function(d) { return y(+d.value) })
-          )
-      dot
-        .data(dataFilter)
+    //const dataFilter = .map(function(d){return {Year: d.Year, value:d[selectedGroup]} })
+    console.log(typeof year);
+    //console.log(dataFilter);
+    // Give these new data to update line
+    line
+        .datum(dataFilter)
         .transition()
         .duration(1000)
-          .attr("cx", function(d) { return x(+d.Year) })
-          .attr("cy", function(d) { return y(+d.value) })
-    }
+        .attr("d", d3.line()
+          .x(function(d) { return x(+d.Year) })
+          .y(function(d) { return y(+d.value) })
+        )
+    dot
+      .data(dataFilter)
+      .transition()
+      .duration(1000)
+        .attr("cx", function(d) { return x(+d.Year) })
+        .attr("cy", function(d) { return y(+d.value) })
+  }
 
-    // When the button is changed, run the updateChart function
-    d3.select("#selectButton").on("change", function(d) {
-        // recover the option that has been chosen
-        let selectedOption = d3.select(this).property("value")
-        // run the updateChart function with this selected option
-        update(selectedOption)
-    })
+  // When the button is changed, run the updateChart function
+  d3.select("#selectButton").on("change", function(d) {
+      // recover the option that has been chosen
+      let selectedOption = d3.select(this).property("value")
+      // run the updateChart function with this selected option
+      update(selectedOption)
+  })
 
 })
 
