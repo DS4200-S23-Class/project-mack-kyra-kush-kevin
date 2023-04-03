@@ -230,8 +230,11 @@ d3.csv("data_clean/table01a_F_R.csv").then(function(data) {
 
 
 
+
 const colors = ['steelblue', 'violet', 'forestgreen', 'darkred', 'grey', 'black', 'brown', 'orange'];
 
+
+let states_colors = {};
 let pest_svg = d3.select("#pest")
   .append("svg")
     .attr("width", FRAME_WIDTH + MARGINS.left + MARGINS.right)
@@ -361,45 +364,52 @@ function build_pesticide(states, firstRun){
 
     // Add the line
     let state_count = 0;
+    let prev_point = [0, y(data[0].Value)];
 
     states.forEach(item => {
-      let prev_point = [0, y(data[0].Value)];
-      row = data.filter(function(d){ return d.State == item; });
+      let pest_row = data.filter(function(d){ return d.State == item; });
 
-
+      prev_point = [0, y(pest_row[0].Value)]
 
       for (let i = 0; i < 45; i++) {
         pest_svg.append("line")
         .datum(data)
+        .attr("class", item)
         .attr("fill", "none")
         .attr("stroke", colors[state_count])
         .attr("stroke-width", 1.5)
         .attr('x1', prev_point[0])
         .attr('y1', prev_point[1])
-        .attr('x2', x(row[i].Year))
-        .attr('y2', y(row[i].Value))
+        .attr('x2', x(pest_row[i].Year))
+        .attr('y2', y(pest_row[i].Value))
         .on("mouseover", function(event, d){
-          //row = data.filter(function(d) {return d.State == item && d.Year == 1960+i;})
-          d3.select("#" + item).attr("stroke-width", 3);
+          d3.selectAll("." + item)
+            .attr("stroke-width", 5)
+            .style("font-weight", "bolder")
+            .style("color", states_colors[item]);
 
           pest_tooltip
             .style("opacity", 1)
-            .html(row[i].State + " in " + row[i].Year +": " + row[i].Value)
+            .html(pest_row[i].State + " in " + pest_row[i].Year +": " + pest_row[i].Value)
             .style("left", `${event.screenX+10}px`)
             .style("top", `${event.screenY - 100}px`)
           })
         .on("mousemove", function(event, d) {
           pest_tooltip
-          .html(row[i].State + " in " + row[i].Year +": " + row[i].Value)
+          .html(pest_row[i].State + " in " + pest_row[i].Year +": " + pest_row[i].Value)
           .style("left", `${event.layerX+10}px`)
           .style("top", `${event.layerY}px`)
       })
         .on("mouseleave", function(event, d) {
+          d3.selectAll("."+item)
+            .attr("stroke-width", 1.5)
+            .style("font-weight", "normal")
+            .style("color", "black");
           pest_tooltip
           .style("opacity", 0);
         });
 
-      prev_point = [x(row[i].Year), y(row[i].Value)];
+      prev_point = [x(pest_row[i].Year), y(pest_row[i].Value)];
     };
 
       state_count ++;
@@ -460,44 +470,54 @@ function build_pesticide(states, firstRun){
     // Add the line
 
     let state_count = 0;
-    states.forEach(item => {
-      let prev_point = [0, y(data[0].Value)];
 
-      row = data.filter(function(d){ return d.State == item; });
-      //console.log(row[1].Year);
+    let prev_point = [0, y(data[0].Value)];
+
+    states.forEach(item => {
+
+      let fert_row = data.filter(function(d){ return d.State == item; });
+      prev_point = [0, y(fert_row[0].Value)]
 
 
 
       for (let i = 0; i < 45; i++) {
         fert_svg.append("line")
         .datum(data)
+        .attr("class", item)
         .attr("fill", "none")
         .attr("stroke", colors[state_count])
         .attr("stroke-width", 1.5)
         .attr('x1', prev_point[0])
         .attr('y1', prev_point[1])
-        .attr('x2', x(row[i].Year))
-        .attr('y2', y(row[i].Value))
+        .attr('x2', x(fert_row[i].Year))
+        .attr('y2', y(fert_row[i].Value))
         .on("mouseover", function(event, d){
-          d3.select(item).style("opacity", 9);
+          d3.selectAll("."+item)
+            .attr("stroke-width", 5)
+            .style("font-weight", "bolder")
+            .style("color", states_colors[item]);
           fert_tooltip
             .style("opacity", 1)
-            .html(row[i].State + " in " + row[i].Year +": " + row[i].Value)
+            .html( + " in " + fert_row[i].Year +": " + fert_row[i].Value)
             .style("left", `${event.screenX+10}px`)
             .style("top", `${event.screenY - 100}px`)
           })
         .on("mousemove", function(event, d) {
           fert_tooltip
-          .html(row[i].State + " in " + row[i].Year +": " + row[i].Value)
+          .html(fert_row[i].State + " in " + fert_row[i].Year +": " + fert_row[i].Value)
           .style("left", `${event.layerX+10}px`)
           .style("top", `${event.layerY}px`)
       })
         .on("mouseleave", function(event, d) {
+          d3.selectAll("."+item)
+            .attr("stroke-width", 1.5)
+            .style("font-weight", "normal")
+            .style("color", "black");
           fert_tooltip
           .style("opacity", 0);
         });
 
-      prev_point = [x(row[i].Year), y(row[i].Value)];
+      prev_point = [x(fert_row[i].Year), y(fert_row[i].Value)];
     };
       state_count ++;
     })
@@ -551,44 +571,56 @@ function build_pesticide(states, firstRun){
       }
 
     // Add the line
-      let state_count = 0;
+    let state_count = 0;
+
+    let prev_point = [0, y(data[0].Value)];
+
 
     states.forEach(item => {
-      let prev_point = [0, y(data[0].Value)];
-      row = data.filter(function(d){ return d.State == item; });
+      let energy_row = data.filter(function(d){ return d.State == item; });
+      prev_point = [0, y(energy_row[0].Value)]
+
 
 
 
       for (let i = 0; i < 45; i++) {
         energy_svg.append("line")
         .datum(data)
+        .attr("class", item)
         .attr("fill", "none")
         .attr("stroke", colors[state_count])
         .attr("stroke-width", 1.5)
         .attr('x1', prev_point[0])
         .attr('y1', prev_point[1])
-        .attr('x2', x(row[i].Year))
-        .attr('y2', y(row[i].Value))
+        .attr('x2', x(energy_row[i].Year))
+        .attr('y2', y(energy_row[i].Value))
         .on("mouseover", function(event, d){
-          d3.select(item).style("opacity", 9);
+          d3.selectAll("."+item)
+            .attr("stroke-width", 5)
+            .style("font-weight", "bolder")
+            .style("color", states_colors[item]);
           energy_tooltip
             .style("opacity", 1)
-            .html(row[i].State + " in " + row[i].Year +": " + row[i].Value)
+            .html(energy_row[i].State + " in " + energy_row[i].Year +": " + energy_row[i].Value)
             .style("left", `${event.screenX+10}px`)
             .style("top", `${event.screenY - 100}px`)
           })
         .on("mousemove", function(event, d) {
           energy_tooltip
-          .html(row[i].State + " in " + row[i].Year +": " + row[i].Value)
+          .html(energy_row[i].State + " in " + energy_row[i].Year +": " + energy_row[i].Value)
           .style("left", `${event.layerX+10}px`)
           .style("top", `${event.layerY}px`)
       })
         .on("mouseleave", function(event, d) {
+          d3.selectAll("."+item)
+            .attr("stroke-width", 1.5)
+            .style("font-weight", "normal")
+            .style("color", "black");
           energy_tooltip
           .style("opacity", 0);
         });
 
-      prev_point = [x(row[i].Year), y(row[i].Value)];
+      prev_point = [x(energy_row[i].Year), y(energy_row[i].Value)];
     };
 
       state_count++;
@@ -651,10 +683,12 @@ function build_pesticide(states, firstRun){
     }
 
     let state_count = 0;
+    let prev_point = [0, y(data[0].Value)];
 
     states.forEach(item => {
-      let prev_point = [0, y(data[0].Value)];
-      row = data.filter(function(d){ return d.State == item; });
+      states_colors[item] = colors[state_count];
+      let labor_row = data.filter(function(d){ return d.State == item; });
+      prev_point = [0, y(labor_row[0].Value)]
 
 
 
@@ -662,29 +696,37 @@ function build_pesticide(states, firstRun){
         labor_svg.append("line")
         .datum(data)
         //.enter()
-        .attr("id", item)
+        .attr("class", item)
         .attr("fill", "none")
         .attr("stroke", colors[state_count])
         .attr("stroke-width", 1.5)
         .attr('x1', prev_point[0])
         .attr('y1', prev_point[1])
-        .attr('x2', x(row[i].Year))
-        .attr('y2', y(row[i].Value))
+        .attr('x2', x(labor_row[i].Year))
+        .attr('y2', y(labor_row[i].Value))
         .on("mouseover", function(event, d){
-          d3.select(item).attr("stroke-width", 3);
+          d3.selectAll("."+item)
+            .attr("stroke-width", 5)
+            .style("font-weight", "bolder")
+            .style("color", states_colors[item]);
           labor_tooltip
             .style("opacity", 1)
-            .html(row[i].State + " in " + row[i].Year +": " + row[i].Value)
+            .html(labor_row[i].State + " in " + labor_row[i].Year +": " + labor_row[i].Value)
             .style("left", `${event.screenX+10}px`)
             .style("top", `${event.screenY - 100}px`)
           })
         .on("mousemove", function(event, d) {
           labor_tooltip
-          .html(row[i].State + " in " + row[i].Year +": " + row[i].Value)
+          .html(labor_row[i].State + " in " + labor_row[i].Year +": " + labor_row[i].Value)
           .style("left", `${event.layerX+10}px`)
           .style("top", `${event.layerY}px`)
       })
         .on("mouseleave", function(event, d) {
+          d3.selectAll("."+item)
+            .attr("stroke-width", 1.5)
+            .style("font-weight", "normal")
+            .style("color", "black");
+
           labor_tooltip
           .style("opacity", 0);
         });
@@ -692,7 +734,7 @@ function build_pesticide(states, firstRun){
           //+ row[i].Value))
         //.on("mouseout", handleMouseleave());
 
-        prev_point = [x(row[i].Year), y(row[i].Value)];
+        prev_point = [x(labor_row[i].Year), y(labor_row[i].Value)];
 
 
 
@@ -760,11 +802,12 @@ function build_pesticide(states, firstRun){
     states_selected.forEach(item => {
       d3.select("#list")
         .append("li")
-        .attr("class", "keypoint")
-        .html(item + ": " + colors[state_count]);
+        .attr("class", item)
+        .text(item + ": " + colors[state_count]);
       state_count ++;
     })
   }
+
 
   // selecting states works. find a way to turn the strings into function calls
   // so that the below functions take in a set of strings (selected states)
