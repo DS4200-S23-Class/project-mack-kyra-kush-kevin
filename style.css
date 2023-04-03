@@ -1,15 +1,21 @@
 
 body{
-    font-family: serif;
-    background-color: aliceblue;
+    font-family: Helvetica;
+    background-color: #d5e9dd;
 }
 
-#viz1{
-    background-color: wheat;
+h1 {
+  color: #154042;
 }
 
-#viz2{
-    background-color: wheat;
+h2 {
+  color: #11201e;
+}
+
+#viz1, #viz2 {
+    background-color: #d5e9dd;
+    padding: 30px;
+    border-radius: 10px;
 }
 
 #median {
@@ -41,5 +47,10 @@ body{
 
 }
 
-
+.content {
+  width: 1200px;
+  padding: 30px 60px;
+  margin: auto;
+  background-color: #fff;
+  border-radius: 20px;
 }
