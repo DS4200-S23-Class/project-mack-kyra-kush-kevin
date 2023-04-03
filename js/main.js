@@ -233,6 +233,8 @@ d3.csv("data_clean/table01a_F_R.csv").then(function(data) {
 
 const colors = ['steelblue', 'violet', 'forestgreen', 'darkred', 'grey', 'black', 'brown', 'orange'];
 
+
+let states_colors = {};
 let pest_svg = d3.select("#pest")
   .append("svg")
     .attr("width", FRAME_WIDTH + MARGINS.left + MARGINS.right)
@@ -362,12 +364,12 @@ function build_pesticide(states, firstRun){
 
     // Add the line
     let state_count = 0;
+    let prev_point = [0, y(data[0].Value)];
 
     states.forEach(item => {
-      let prev_point = [0, y(data[0].Value)];
       let pest_row = data.filter(function(d){ return d.State == item; });
 
-
+      prev_point = [0, y(pest_row[0].Value)]
 
       for (let i = 0; i < 45; i++) {
         pest_svg.append("line")
@@ -383,7 +385,8 @@ function build_pesticide(states, firstRun){
         .on("mouseover", function(event, d){
           d3.selectAll("." + item)
             .attr("stroke-width", 5)
-            .style("font-weight", "bolder");
+            .style("font-weight", "bolder")
+            .style("color", states_colors[item]);
 
           pest_tooltip
             .style("opacity", 1)
@@ -400,7 +403,8 @@ function build_pesticide(states, firstRun){
         .on("mouseleave", function(event, d) {
           d3.selectAll("."+item)
             .attr("stroke-width", 1.5)
-            .style("font-weight", "normal");
+            .style("font-weight", "normal")
+            .style("color", "black");
           pest_tooltip
           .style("opacity", 0);
         });
@@ -466,11 +470,13 @@ function build_pesticide(states, firstRun){
     // Add the line
 
     let state_count = 0;
+
+    let prev_point = [0, y(data[0].Value)];
+
     states.forEach(item => {
-      let prev_point = [0, y(data[0].Value)];
 
       let fert_row = data.filter(function(d){ return d.State == item; });
-      //console.log(row[1].Year);
+      prev_point = [0, y(fert_row[0].Value)]
 
 
 
@@ -489,6 +495,7 @@ function build_pesticide(states, firstRun){
           d3.selectAll("."+item)
             .attr("stroke-width", 5)
             .style("font-weight", "bolder")
+            .style("color", states_colors[item]);
           fert_tooltip
             .style("opacity", 1)
             .html( + " in " + fert_row[i].Year +": " + fert_row[i].Value)
@@ -504,7 +511,8 @@ function build_pesticide(states, firstRun){
         .on("mouseleave", function(event, d) {
           d3.selectAll("."+item)
             .attr("stroke-width", 1.5)
-            .style("font-weight", "normal");
+            .style("font-weight", "normal")
+            .style("color", "black");
           fert_tooltip
           .style("opacity", 0);
         });
@@ -563,11 +571,15 @@ function build_pesticide(states, firstRun){
       }
 
     // Add the line
-      let state_count = 0;
+    let state_count = 0;
+
+    let prev_point = [0, y(data[0].Value)];
+
 
     states.forEach(item => {
-      let prev_point = [0, y(data[0].Value)];
       let energy_row = data.filter(function(d){ return d.State == item; });
+      prev_point = [0, y(energy_row[0].Value)]
+
 
 
 
@@ -585,7 +597,8 @@ function build_pesticide(states, firstRun){
         .on("mouseover", function(event, d){
           d3.selectAll("."+item)
             .attr("stroke-width", 5)
-            .style("font-weight", "bolder");
+            .style("font-weight", "bolder")
+            .style("color", states_colors[item]);
           energy_tooltip
             .style("opacity", 1)
             .html(energy_row[i].State + " in " + energy_row[i].Year +": " + energy_row[i].Value)
@@ -601,7 +614,8 @@ function build_pesticide(states, firstRun){
         .on("mouseleave", function(event, d) {
           d3.selectAll("."+item)
             .attr("stroke-width", 1.5)
-            .style("font-weight", "normal");
+            .style("font-weight", "normal")
+            .style("color", "black");
           energy_tooltip
           .style("opacity", 0);
         });
@@ -669,10 +683,12 @@ function build_pesticide(states, firstRun){
     }
 
     let state_count = 0;
+    let prev_point = [0, y(data[0].Value)];
 
     states.forEach(item => {
-      let prev_point = [0, y(data[0].Value)];
+      states_colors[item] = colors[state_count];
       let labor_row = data.filter(function(d){ return d.State == item; });
+      prev_point = [0, y(labor_row[0].Value)]
 
 
 
@@ -691,7 +707,8 @@ function build_pesticide(states, firstRun){
         .on("mouseover", function(event, d){
           d3.selectAll("."+item)
             .attr("stroke-width", 5)
-            .style("font-weight", "bolder");
+            .style("font-weight", "bolder")
+            .style("color", states_colors[item]);
           labor_tooltip
             .style("opacity", 1)
             .html(labor_row[i].State + " in " + labor_row[i].Year +": " + labor_row[i].Value)
@@ -707,7 +724,9 @@ function build_pesticide(states, firstRun){
         .on("mouseleave", function(event, d) {
           d3.selectAll("."+item)
             .attr("stroke-width", 1.5)
-            .style("font-weight", "normal");
+            .style("font-weight", "normal")
+            .style("color", "black");
+
           labor_tooltip
           .style("opacity", 0);
         });
