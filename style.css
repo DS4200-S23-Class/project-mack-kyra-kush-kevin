@@ -18,6 +18,10 @@ h2 {
     border-radius: 10px;
 }
 
+#viz2key {
+    text-align: left;
+}
+
 #median {
     width: 100px;
     height: 400px;
@@ -53,4 +57,13 @@ h2 {
   margin: auto;
   background-color: #fff;
   border-radius: 20px;
+}
+
+.tooltip {
+  background-color: white;
+  border: solid;
+  border-width: 2px;
+  border-radius: 5px;
+  padding: 5px;
+  position: absolute;
 }

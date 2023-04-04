@@ -1,3 +1,7 @@
+//--------------------------------------------//
+// Define Constants //
+//--------------------------------------------//
+
 const FRAME_HEIGHT = 400;
 const FRAME_WIDTH = 400;
 const FRAME_WIDTH_LONG = 900;
@@ -6,11 +10,10 @@ const VIS_HEIGHT = FRAME_HEIGHT - MARGINS.top - MARGINS.bottom;
 const VIS_WIDTH = FRAME_WIDTH - MARGINS.left - MARGINS.right;
 const VIS_WIDTH_LONG = FRAME_WIDTH_LONG - MARGINS.left - MARGINS.right;
 
-/**************************************************************/
-/**************************************************************/
-
-// List of groups
-/*
+//--------------------------------------------//
+// VISUALIZATION #1
+//--------------------------------------------//
+/*// List of groups
 let allGroup = ["Total Output", "All Livestock and Products",
   "Livestock and Products: Meat", "Livestock and Products: Dairy",
   "Livestock and Products: Poultry and Eggs", "All Crops", "Crops: Food Grains",
@@ -19,7 +22,7 @@ let allGroup = ["Total Output", "All Livestock and Products",
 
 let allGroup = ["Total Output", "All Livestock and Products", "All Crops"];
 
-// add the options to the button
+// Add the options to the button
 d3.select("#selectButton")
   .selectAll('myOptions')
   .data(allGroup)
@@ -28,10 +31,8 @@ d3.select("#selectButton")
     .text(d => d)
     .attr("value", d => d);
 
-
 function build_outputs() {
 
-  // append the svg object to the body of the page
   let svg = d3.select("#viz1")
     .append("svg")
       .attr("width", FRAME_WIDTH_LONG + MARGINS.left)
@@ -40,7 +41,13 @@ function build_outputs() {
       .attr("transform",
             "translate(" + MARGINS.left * 2 + "," + MARGINS.top + ")");
 
-  // Add X axis --> it is a date format
+  let g1_tooltip = d3.select("#viz1")
+            .append("div")
+            .attr("id", "viz1tip")
+            .style("opacity", 0)
+            .attr("class", "tooltip");
+
+  // Add X axis
   let x = d3.scaleLinear()
     .domain([1960,2004])
     .range([ 0, VIS_WIDTH_LONG ]);
@@ -55,6 +62,7 @@ function build_outputs() {
   svg.append("g")
     .call(d3.axisLeft(y));
 
+  // Add Axis Labels
   svg.append("text")
     .attr("class", "x label")
     .attr("text-anchor", "end")
@@ -75,10 +83,10 @@ function build_outputs() {
     .attr("text-anchor", "middle")
     .text("Agriculture Output Over Time")
 
-  //Read the data
+  // Read the data
   d3.csv("data_clean/table01a_F.csv").then(function(data) {
 
-      // Initialize line with group a
+      // Initialize line with "Total Output"
       let line = svg
         .append('g')
         .append("path")
@@ -88,10 +96,10 @@ function build_outputs() {
             .y(function(d) { return y(parseInt(d["Total Output"])); })
           )
           .attr("stroke", "black")
-          .style("stroke-width", 4)
+          .style("stroke-width", 2)
           .style("fill", "none");
 
-      // Initialize dots with group a
+      // Initialize dots with "Total Output"
       let dot = svg
         .selectAll('circle')
         .data(data)
@@ -99,39 +107,49 @@ function build_outputs() {
         .append('circle')
           .attr("cx", function(d) { return x(parseInt(d["Year"])); })
           .attr("cy", function(d) { return y(parseInt(d["Total Output"])); })
-          .attr("r", 5)
+          .attr("r", 4)
           .style("fill", "#69b3a2")
 
+          .on("mouseover", function(event, d) {
+            d3.select("#viz1tip")
+            .style("opacity", 1)
+            .html("Value")
+          })
+
+          .on("mousemove", function(event, d) {
+            d3.select("#viz1tip")
+            .html("$" + d["Total Output"])
+            .style("left", `${event.layerX+10}px`)
+            .style("top", `${event.layerY}px`)
+          })
+
+          .on("mouseleave", function(event, d) {
+            d3.select("#viz1tip")
+            .style("opacity", 0)
+          })
 
       // A function that update the chart
       function update(selectedGroup) {
-
-        // Create new data with the selection?
+        // Create new data with the selection
         const dataFilter = data.map(function(d){return {Year: d.Year, value:d[selectedGroup]} })
-
         // Give these new data to update line
-        line
-            .datum(dataFilter)
+        line.datum(dataFilter)
             .transition()
             .duration(1000)
             .attr("d", d3.line()
               .x(function(d) { return x(+d.Year) })
-              .y(function(d) { return y(+d.value) })
-            )
-        dot
-          .data(dataFilter)
+              .y(function(d) { return y(+d.value) }))
+        dot.data(dataFilter)
           .transition()
           .duration(1000)
             .attr("cx", function(d) { return x(+d.Year) })
             .attr("cy", function(d) { return y(+d.value) })
-      }
+      };
 
       // When the button is changed, run the updateChart function
       d3.select("#selectButton").on("change", function(d) {
-          // recover the option that has been chosen
           let selectedOption = d3.select(this).property("value");
           console.log(selectedOption);
-          // run the updateChart function with this selected option
           update(selectedOption);
       });
 
@@ -154,7 +172,7 @@ d3.csv("data_clean/table01a_F_R.csv").then(function(data) {
   // List of groups = header of the csv files
   let keys = data.columns.slice(1);
 
-  console.log(keys);
+  //console.log(keys);
 
   // Add X axis
   let x = d3.scaleLinear()
@@ -213,13 +231,28 @@ d3.csv("data_clean/table01a_F_R.csv").then(function(data) {
         .x(function(d, i) { return x(d.data.Year); })
         .y0(function(d) { return y(d[0]); })
         .y1(function(d) { return y(d[1]); })
-    );
-
+    )
+    .on("mouseover", function(event, d) {
+          d3.select("#viz1tip")
+          .style("opacity", 1)
+          .html("Value")
+        })
+        .on("mousemove", function(event, d) {
+          d3.select("#viz1tip")
+          .html(d.key)
+          .style("left", `${event.layerX+10}px`)
+          .style("top", `${event.layerY}px`)
+        })
+        .on("mouseleave", function(event, d) {
+          d3.select("#viz1tip")
+          .style("opacity", 0)
+        });
+/*
     d3.select("#selectButton").on("change", function(d) {
         // recover the option that has been chosen
         let selectedOption = d3.select(this).property("value");
 
-    });
+    });*/
 
 })
 }
@@ -265,44 +298,20 @@ let labor_svg = d3.select("#labor")
           "translate(" + MARGINS.left + "," + MARGINS.top + ")");
 let labor_tooltip = d3.select("#labor")
             .append("div")
-            .style("position", "absolute")
             .style("opacity", 0)
-            .attr("class", "tooltip")
-            .style("background-color", "white")
-            .style("border", "solid")
-            .style("border-width", "2px")
-            .style("border-radius", "5px")
-            .style("padding", "5px");
+            .attr("class", "tooltip");
 let energy_tooltip = d3.select("#energy")
             .append("div")
-            .style("position", "absolute")
             .style("opacity", 0)
-            .attr("class", "tooltip")
-            .style("background-color", "white")
-            .style("border", "solid")
-            .style("border-width", "2px")
-            .style("border-radius", "5px")
-            .style("padding", "5px");
+            .attr("class", "tooltip");
 let fert_tooltip = d3.select("#fert")
             .append("div")
-            .style("position", "absolute")
             .style("opacity", 0)
-            .attr("class", "tooltip")
-            .style("background-color", "white")
-            .style("border", "solid")
-            .style("border-width", "2px")
-            .style("border-radius", "5px")
-            .style("padding", "5px");
+            .attr("class", "tooltip");
 let pest_tooltip = d3.select("#pest")
             .append("div")
-            .style("position", "absolute")
             .style("opacity", 0)
-            .attr("class", "tooltip")
-            .style("background-color", "white")
-            .style("border", "solid")
-            .style("border-width", "2px")
-            .style("border-radius", "5px")
-            .style("padding", "5px");
+            .attr("class", "tooltip");
 
 
 function build_pesticide(states, firstRun){
@@ -793,18 +802,31 @@ function build_pesticide(states, firstRun){
     d3.selectAll("li").remove()
 
     states_selected.forEach(item => {
+      let alreadyClicked = false;
       d3.select("#list")
         .append("li")
         .attr("class", item)
-        .text(item + ": " + colors[state_count]);
+        .text(item + ": " + colors[state_count])
+        .on("click", function() {
+          if (alreadyClicked) {
+            d3.selectAll("." + item)
+            .attr("stroke-width", 1.5)
+            .style("font-weight", "normal")
+            .style("color", "black")
+          } else {
+            d3.selectAll("."+item)
+            .attr("stroke-width", 5)
+            .style("font-weight", "bolder")
+            .style("color", states_colors[item])
+            alreadyClicked = true;
+          }
+        });
+
       state_count ++;
     })
   }
 
-
-  // selecting states works. find a way to turn the strings into function calls
-  // so that the below functions take in a set of strings (selected states)
-  // and plots their data.
+// RUN FUNCTIONS TO BUILD PLOTS
 
 build_pesticide([], true);
 build_fertilizer([], true);
