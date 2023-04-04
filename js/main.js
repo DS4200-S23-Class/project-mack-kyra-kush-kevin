@@ -8,6 +8,10 @@ const VIS_WIDTH_LONG = FRAME_WIDTH_LONG - MARGINS.left - MARGINS.right;
 
 /**************************************************************/
 /**************************************************************/
+
+
+
+
 function build_outputs() {
 
   // append the svg object to the body of the page
@@ -18,6 +22,18 @@ function build_outputs() {
     .append("g")
       .attr("transform",
             "translate(" + MARGINS.left *2 + "," + MARGINS.top + ")");
+
+  let g1_tooltip = d3.select("#viz1")
+            .append("div")
+            .attr("id", "viz1tip")
+            .style("position", "absolute")
+            .style("opacity", 0)
+            .attr("class", "tooltip")
+            .style("background-color", "white")
+            .style("border", "solid")
+            .style("border-width", "2px")
+            .style("border-radius", "5px")
+            .style("padding", "5px");
 
   // List of groups (here I have one group per column)
   let allGroup = ["Total Output", "All Livestock and Products",
@@ -113,6 +129,23 @@ function build_outputs() {
           .attr("cy", function(d) { return y(parseInt(d["Total Output"])); })
           .attr("r", 7)
           .style("fill", "#69b3a2")
+          .on("mouseover", function(event, d) {
+
+            console.log("Hit");
+            d3.select("#viz1tip")
+            .style("opacity", 1)
+            .html("Value")
+          })
+          .on("mousemove", function(event, d) {
+            d3.select("#viz1tip")
+            .html("Moving")
+            .style("left", `${event.layerX+10}px`)
+            .style("top", `${event.layerY}px`)
+          })
+          .on("mouseleave", function(event, d) {
+            d3.select("#viz1tip")
+            .style("opacity", 0)
+          })
 
 /*
       // A function that update the chart
@@ -164,6 +197,8 @@ d3.csv("data_clean/table01a_F_R.csv").then(function(data) {
 
   // List of groups = header of the csv files
   let keys = data.columns.slice(1)
+
+  console.log(keys);
 
   // Add X axis
   let x = d3.scaleLinear()
@@ -224,6 +259,22 @@ d3.csv("data_clean/table01a_F_R.csv").then(function(data) {
         .y0(function(d) { return y(d[0]); })
         .y1(function(d) { return y(d[1]); })
     )
+      .on("mouseover", function(event, d) {
+            console.log("Hit");
+            d3.select("#viz1tip")
+            .style("opacity", 1)
+            .html("Value")
+          })
+          .on("mousemove", function(event, d) {
+            d3.select("#viz1tip")
+            .html(d.key)
+            .style("left", `${event.layerX+10}px`)
+            .style("top", `${event.layerY}px`)
+          })
+          .on("mouseleave", function(event, d) {
+            d3.select("#viz1tip")
+            .style("opacity", 0)
+          })
 
 })
 }
