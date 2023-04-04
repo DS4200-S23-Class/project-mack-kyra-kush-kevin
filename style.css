@@ -18,6 +18,10 @@ h2 {
     border-radius: 10px;
 }
 
+#viz2key {
+    text-align: left;
+}
+
 #median {
     width: 100px;
     height: 400px;

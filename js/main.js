@@ -851,10 +851,26 @@ function build_pesticide(states, firstRun){
     d3.selectAll("li").remove()
 
     states_selected.forEach(item => {
+      let alreadyClicked = false;
       d3.select("#list")
         .append("li")
         .attr("class", item)
-        .text(item + ": " + colors[state_count]);
+        .text(item + ": " + colors[state_count])
+        .on("click", function() {
+          if (alreadyClicked) {
+            d3.selectAll("." + item)
+            .attr("stroke-width", 1.5)
+            .style("font-weight", "normal")
+            .style("color", "black")
+          } else {
+            d3.selectAll("."+item)
+            .attr("stroke-width", 5)
+            .style("font-weight", "bolder")
+            .style("color", states_colors[item])
+            alreadyClicked = true;
+          }   
+        });
+      
       state_count ++;
     })
   }
