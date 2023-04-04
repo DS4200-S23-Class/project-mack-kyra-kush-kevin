@@ -8,6 +8,27 @@ const VIS_WIDTH_LONG = FRAME_WIDTH_LONG - MARGINS.left - MARGINS.right;
 
 /**************************************************************/
 /**************************************************************/
+
+// List of groups
+/*
+let allGroup = ["Total Output", "All Livestock and Products",
+  "Livestock and Products: Meat", "Livestock and Products: Dairy",
+  "Livestock and Products: Poultry and Eggs", "All Crops", "Crops: Food Grains",
+  "Crops: Feed Crops", "Crops: Oil Crops", "Crops: Vegetables and Melons",
+  "Crops: Fruits and Tree Nuts", "Crops: Other"];*/
+
+let allGroup = ["Total Output", "All Livestock and Products", "All Crops"];
+
+// add the options to the button
+d3.select("#selectButton")
+  .selectAll('myOptions')
+  .data(allGroup)
+  .enter()
+    .append('option')
+    .text(d => d)
+    .attr("value", d => d);
+
+
 function build_outputs() {
 
   // append the svg object to the body of the page
@@ -17,23 +38,7 @@ function build_outputs() {
       .attr("height", FRAME_HEIGHT)
     .append("g")
       .attr("transform",
-            "translate(" + MARGINS.left *2 + "," + MARGINS.top + ")");
-
-  // List of groups (here I have one group per column)
-  let allGroup = ["Total Output", "All Livestock and Products",
-    "Livestock and Products: Meat", "Livestock and Products: Dairy",
-    "Livestock and Products: Poultry and Eggs", "All Crops", "Crops: Food Grains",
-    "Crops: Feed Crops", "Crops: Oil Crops", "Crops: Vegetables and Melons",
-    "Crops: Fruits and Tree Nuts", "Crops: Other"];
-
-  // add the options to the button
-  d3.select("#selectButton")
-    .selectAll('myOptions')
-   	.data(allGroup)
-    .enter()
-    	.append('option')
-      .text(d => d)
-      .attr("value", d => d);
+            "translate(" + MARGINS.left * 2 + "," + MARGINS.top + ")");
 
   // Add X axis --> it is a date format
   let x = d3.scaleLinear()
@@ -72,23 +77,6 @@ function build_outputs() {
 
   //Read the data
   d3.csv("data_clean/table01a_F.csv").then(function(data) {
-  /*
-    let prev_point = [0, y(data[0]["Total.Output"])];
-
-    for (let i = 0; i < 45; i++) {
-      pest_svg.append("line")
-      .datum(data)
-      .attr("fill", "none")
-      .attr("stroke", "black")
-      .attr("stroke-width", 1.5)
-      .attr('x1', prev_point[0])
-      .attr('y1', prev_point[1])
-      .attr('x2', x(row[i].Year))
-      .attr('y2', y(row[i]["Total.Output"]));
-
-      prev_point = [x(row[i].Year), y(row[i].Value)];
-    }*/
-
 
       // Initialize line with group a
       let line = svg
@@ -96,8 +84,8 @@ function build_outputs() {
         .append("path")
           .datum(data)
           .attr("d", d3.line()
-            .x(function(d) { console.log(d["Year"]); return x(parseInt(d["Year"])); })
-            .y(function(d) { console.log(d["Total Output"]); return y(parseInt(d["Total Output"])); })
+            .x(function(d) { return x(parseInt(d["Year"])); })
+            .y(function(d) { return y(parseInt(d["Total Output"])); })
           )
           .attr("stroke", "black")
           .style("stroke-width", 4)
@@ -111,10 +99,10 @@ function build_outputs() {
         .append('circle')
           .attr("cx", function(d) { return x(parseInt(d["Year"])); })
           .attr("cy", function(d) { return y(parseInt(d["Total Output"])); })
-          .attr("r", 7)
+          .attr("r", 5)
           .style("fill", "#69b3a2")
 
-/*
+
       // A function that update the chart
       function update(selectedGroup) {
 
@@ -141,10 +129,11 @@ function build_outputs() {
       // When the button is changed, run the updateChart function
       d3.select("#selectButton").on("change", function(d) {
           // recover the option that has been chosen
-          let selectedOption = d3.select(this).property("value")
+          let selectedOption = d3.select(this).property("value");
+          console.log(selectedOption);
           // run the updateChart function with this selected option
-          update(selectedOption)
-      })*/
+          update(selectedOption);
+      });
 
   });
 };
@@ -163,7 +152,9 @@ function build_stacked_outputs() {
 d3.csv("data_clean/table01a_F_R.csv").then(function(data) {
 
   // List of groups = header of the csv files
-  let keys = data.columns.slice(1)
+  let keys = data.columns.slice(1);
+
+  console.log(keys);
 
   // Add X axis
   let x = d3.scaleLinear()
@@ -210,7 +201,6 @@ d3.csv("data_clean/table01a_F_R.csv").then(function(data) {
   let stackedData = d3.stack()
     .keys(keys)
     (data)
-    //console.log("This is the stack result: ", stackedData)
 
   // Show the areas
   svg
@@ -218,12 +208,18 @@ d3.csv("data_clean/table01a_F_R.csv").then(function(data) {
     .data(stackedData)
     .enter()
     .append("path")
-      .style("fill", function(d) { console.log(d.key) ; return color(d.key); })
+      .style("fill", function(d) { return color(d.key); })
       .attr("d", d3.area()
         .x(function(d, i) { return x(d.data.Year); })
         .y0(function(d) { return y(d[0]); })
         .y1(function(d) { return y(d[1]); })
-    )
+    );
+
+    d3.select("#selectButton").on("change", function(d) {
+        // recover the option that has been chosen
+        let selectedOption = d3.select(this).property("value");
+
+    });
 
 })
 }
@@ -782,8 +778,6 @@ function build_pesticide(states, firstRun){
       const index = states_selected.indexOf(newState);
       states_selected.splice(index, 1);
 
-      //console.log(states_selected);
-
       build_pesticide(states_selected, false);
       build_fertilizer(states_selected, false);
       build_energy_input(states_selected, false);
@@ -792,7 +786,6 @@ function build_pesticide(states, firstRun){
       dispKey();
     }
 
-    //console.log(states_selected);
   }
 
   function dispKey(){
