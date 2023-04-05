@@ -19,11 +19,15 @@ h2 {
 }
 
 #viz2key {
-    text-align: left;
+  background-color: #fff;
+  border-radius: 15px;
+  width: 75px;
+  height: 675px;
+  padding: 10px;
 }
 
 #median {
-    width: 100px;
+    width: 10px;
     height: 400px;
 }
 
@@ -35,7 +39,6 @@ h2 {
 .flex-column {
     display: flex;
     flex-direction: column;
-
 }
 
 .flex-row {
